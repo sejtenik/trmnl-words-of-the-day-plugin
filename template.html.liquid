@@ -61,6 +61,14 @@
             border-right: 4px solid #000;
             border-radius: 5px;
         }
+
+        .multi-line-ellipsis {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;   /* Liczba wierszy przed obcięciem */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
     </style>
     <div class="columns">
         <div class="column">
@@ -74,11 +82,11 @@
                         <span class="pronunciation">/{{ pronunciation }}/</span>
                     {% endif %}
 
-                    <p class="definition">{{ definition }} {{ meanings }}</p>
+                    <p class="definition multi-line-ellipsis">{{ definition }} {{ meanings }}</p>
                 </div>
 
                 {% if example %}
-                    <div class="example">
+                    <div class="example multi-line-ellipsis">
                         <p>{{ example }}</p>
                     </div>
                 {% endif %}
