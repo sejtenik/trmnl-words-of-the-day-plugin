@@ -174,7 +174,12 @@ end
 
 ############# execution #########
 
-word_of_the_day = WordOfTheDayFactory.parsers.sample.fetch
+dictionaries = WordOfTheDayFactory.parsers
+
+current_hour = Time.now.hour
+index = current_hour % dictionaries.size
+
+word_of_the_day = dictionaries[index].fetch
 
 puts word_of_the_day
 
