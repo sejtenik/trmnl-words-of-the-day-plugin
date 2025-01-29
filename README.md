@@ -39,3 +39,7 @@ To ensure the data remains current, schedule the script to run at regular interv
 - https://github.com/Shopify/liquid
 - https://github.com/usetrmnl/plugins
 - https://docs.usetrmnl.com/go/private-plugins/create-a-screen
+- https://github.com/eindpunt/awesome-TRMNL
+
+### Check out my other private TRMNL plugins.
+- https://github.com/sejtenik?tab=repositories&q=trmnl-
