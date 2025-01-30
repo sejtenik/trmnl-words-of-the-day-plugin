@@ -215,7 +215,7 @@ class WiktionaryParser < WordOfTheDayParser
   end
 end
 
-class OEDParser < WordOfTheDayParser
+class OxfordParser < WordOfTheDayParser
   def fetch
     url = "https://www.oed.com/"
     html = URI.open(url)
@@ -231,6 +231,24 @@ class OEDParser < WordOfTheDayParser
       definition: definition,
       part_of_speech: part_of_speech,
       source: "Oxford English Dictionary (#{URI.parse(url).host})"
+    }
+  end
+end
+
+class LongmanParser < WordOfTheDayParser
+  def fetch
+    url = "https://www.ldoceonline.com/"
+    html = URI.open(url)
+    doc = Nokogiri::HTML(html)
+
+    word_element = doc.at_css("#wotd .title_entry a")
+    word = word_element&.text&.strip
+    definition = doc.at_css("#wotd .ldoceEntry .newline a")&.text&.strip
+
+    {
+      word: word,
+      definition: definition,
+      source: "Longman (#{URI.parse(url).host})"
     }
   end
 end
