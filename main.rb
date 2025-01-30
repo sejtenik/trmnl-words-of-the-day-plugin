@@ -215,6 +215,27 @@ class WiktionaryParser < WordOfTheDayParser
   end
 end
 
+class OEDParser < WordOfTheDayParser
+  def fetch
+    url = "https://www.oed.com/"
+    html = URI.open(url)
+    doc = Nokogiri::HTML(html)
+
+    word_element = doc.at_css(".wotd h3 a")
+    word = word_element&.text&.strip
+    part_of_speech = doc.at_css(".wotdPos")&.text&.strip
+    definition = doc.at_css(".wotdDef")&.text&.strip
+
+    {
+      word: word,
+      definition: definition,
+      part_of_speech: part_of_speech,
+      source: "Oxford English Dictionary (#{URI.parse(url).host})"
+    }
+  end
+end
+
+
 class PwnParser < WordOfTheDayParser
   def fetch
     url = "https://sjp.pwn.pl"
