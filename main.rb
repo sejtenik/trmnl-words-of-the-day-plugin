@@ -215,6 +215,32 @@ class WiktionaryParser < WordOfTheDayParser
   end
 end
 
+class PwnParser < WordOfTheDayParser
+  def fetch
+    url = "https://sjp.pwn.pl"
+    html = URI.open(url)
+    doc = Nokogiri::HTML(html)
+
+    day_word_box = doc.at_css(".sjp-slowo-dnia")
+    word_link = day_word_box.at_css("a")
+
+    word = word_link.text.strip
+    word_url = word_link['href']
+
+    word_html = URI.open(word_url)
+    word_doc = Nokogiri::HTML(word_html)
+    definition_text = word_doc.at_css(".znacz").text.strip
+    definition_text.force_encoding('UTF-8')
+    definition = definition_text.match(/«(.*?)»/)[1]
+
+    {
+      word: word,
+      definition: definition,
+      source: URI.parse(url).host
+    }
+  end
+end
+
 
 def send_to_trmnl(data_payload)
   trmnl_webhook_url = "https://usetrmnl.com/api/custom_plugins/#{ENV['TRMNL_PLUGIN_ID']}"
@@ -254,7 +280,7 @@ end
 
 #word_of_the_day = dictionaries[index].fetch
 
-word_of_the_day = WiktionaryParser.new.fetch
+word_of_the_day = PwnParser.new.fetch
 
 puts word_of_the_day
 
