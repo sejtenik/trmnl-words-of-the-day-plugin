@@ -273,14 +273,12 @@ end
 
 ############# execution #########
 
-#dictionaries = WordOfTheDayFactory.parsers
+dictionaries = WordOfTheDayFactory.parsers
 
-#current_hour = Time.now.hour
-#index = current_hour % dictionaries.size
+current_minute = Time.now.min
+index = current_minute / 30 % dictionaries.size
 
-#word_of_the_day = dictionaries[index].fetch
-
-word_of_the_day = PwnParser.new.fetch
+word_of_the_day = dictionaries[index].fetch
 
 puts word_of_the_day
 
