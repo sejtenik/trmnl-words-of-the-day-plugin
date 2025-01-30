@@ -194,6 +194,28 @@ class CambridgeParser < WordOfTheDayParser
   end
 end
 
+class WiktionaryParser < WordOfTheDayParser
+  def fetch
+    url = "https://en.wiktionary.org/wiki/Wiktionary:Main_Page"
+    html = URI.open(url)
+    doc = Nokogiri::HTML(html)
+
+    word_element = doc.at_css("#WOTD-rss-title")
+    word = word_element&.text&.strip
+    part_of_speech = word_element.parent.parent.next_element&.text&.strip
+
+    definition = doc.at_css("#WOTD-rss-description ol li")&.text&.strip
+
+    {
+      word: word,
+      definition: definition,
+      part_of_speech: part_of_speech,
+      source: URI.parse(url).host
+    }
+  end
+end
+
+
 def send_to_trmnl(data_payload)
   trmnl_webhook_url = "https://usetrmnl.com/api/custom_plugins/#{ENV['TRMNL_PLUGIN_ID']}"
 
@@ -232,7 +254,7 @@ end
 
 #word_of_the_day = dictionaries[index].fetch
 
-word_of_the_day = CambridgeParser.new.fetch
+word_of_the_day = WiktionaryParser.new.fetch
 
 puts word_of_the_day
 
