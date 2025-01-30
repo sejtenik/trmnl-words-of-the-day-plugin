@@ -143,6 +143,37 @@ class MerriamParser < WordOfTheDayParser
   end
 end
 
+class BritannicaParser < WordOfTheDayParser
+  def fetch
+    url = "https://www.britannica.com/dictionary/eb/word-of-the-day"
+    html = URI.open(url)
+    doc = Nokogiri::HTML(html)
+
+    word = doc.at_css(".hw_d .hw_txt, .hw_m .hw_txt")&.text&.strip
+
+    pronunciation = doc.at_css(".hpron_word")&.text&.strip
+    pronunciation.gsub!(/^\//, '').gsub!(/\/$/, '') if pronunciation
+
+    part_of_speech = doc.at_css(".fl")&.text&.strip
+
+    definition = doc.at_css(".midb:first-of-type .midbt p")&.text&.strip.sub(/^\d+ /, '')
+
+    example = doc.at_css(".midb:first-of-type .vib .vis .vi p")&.text&.strip
+
+    {
+      word: word,
+      part_of_speech: part_of_speech,
+      pronunciation: pronunciation,
+      meanings: '',
+      example: example,
+      qualifier: '',
+      definition: definition,
+      source: URI.parse(url).host
+    }
+  end
+end
+
+
 def send_to_trmnl(data_payload)
   trmnl_webhook_url = "https://usetrmnl.com/api/custom_plugins/#{ENV['TRMNL_PLUGIN_ID']}"
 
@@ -174,12 +205,14 @@ end
 
 ############# execution #########
 
-dictionaries = WordOfTheDayFactory.parsers
+#dictionaries = WordOfTheDayFactory.parsers
 
-current_hour = Time.now.hour
-index = current_hour % dictionaries.size
+#current_hour = Time.now.hour
+#index = current_hour % dictionaries.size
 
-word_of_the_day = dictionaries[index].fetch
+#word_of_the_day = dictionaries[index].fetch
+
+word_of_the_day = BritannicaParser.new.fetch
 
 puts word_of_the_day
 
