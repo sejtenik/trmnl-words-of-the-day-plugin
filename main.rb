@@ -164,15 +164,35 @@ class BritannicaParser < WordOfTheDayParser
       word: word,
       part_of_speech: part_of_speech,
       pronunciation: pronunciation,
-      meanings: '',
       example: example,
-      qualifier: '',
       definition: definition,
       source: URI.parse(url).host
     }
   end
 end
 
+
+class CambridgeParser < WordOfTheDayParser
+  def fetch
+    url = "https://dictionary.cambridge.org/"
+    html = URI.open(url)
+    doc = Nokogiri::HTML(html)
+
+    word = doc.at_css(".wotd-hw a")&.text&.strip
+
+    pronunciation = doc.at_css(".ipa.dipa")&.text&.strip
+    pronunciation.gsub!(/^\//, '').gsub!(/\/$/, '') if pronunciation
+
+    definition = doc.css("p").find { |p| p.next_element&.name == "a" && p.next_element["href"]&.include?(word) }&.text&.strip
+
+    {
+      word: word,
+      pronunciation: pronunciation,
+      definition: definition,
+      source: URI.parse(url).host
+    }
+  end
+end
 
 def send_to_trmnl(data_payload)
   trmnl_webhook_url = "https://usetrmnl.com/api/custom_plugins/#{ENV['TRMNL_PLUGIN_ID']}"
@@ -212,7 +232,7 @@ end
 
 #word_of_the_day = dictionaries[index].fetch
 
-word_of_the_day = BritannicaParser.new.fetch
+word_of_the_day = CambridgeParser.new.fetch
 
 puts word_of_the_day
 
