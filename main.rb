@@ -5,8 +5,32 @@ require 'dotenv/load'
 
 class WordOfTheDayParser
   def fetch
-    raise NotImplementedError, "Subclasses must implement `fetch`"
+    html = URI.open(url)
+    doc = Nokogiri::HTML(html)
+    result = parse(doc)
+
+    result[:word] = '>>Word not found<<' if result[:word].nil? or result[:word].empty?
+    result[:definition] = '>>Definition not found<<' if result[:definition].nil? or result[:definition].empty?
+    result[:source] = URI.parse(url).host
+    result
+  rescue => e
+    {
+      word: ">>#{e.class.to_s}<<",
+      definition: ">>#{e.message}<<",
+      source: url
+    }
   end
+
+  protected
+
+  def parse(doc)
+    raise NotImplementedError, "Subclasses must implement `parse`"
+  end
+
+  def url
+    raise NotImplementedError, "Subclasses must implement `url`"
+  end
+
 end
 
 class WordOfTheDayFactory
@@ -18,18 +42,11 @@ class WordOfTheDayFactory
 end
 
 class DictionaryComParser < WordOfTheDayParser
-  def fetch
-    url = "https://www.dictionary.com/e/word-of-the-day/"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     word = doc.at_css(".otd-item-headword__word h1.js-fit-text")&.text&.strip
-
     pronunciation = doc.at_css(".otd-item-headword__ipa")&.text&.strip
     pronunciation.gsub!(/^\[|\]$/, '').strip! if pronunciation
-
     part_of_speech = doc.at_css(".otd-item-headword__pos p span.italic")&.text&.strip
-
     definition = doc.at_css(".otd-item-headword__pos p:not(.italic) + p")&.text&.strip
 
     {
@@ -37,31 +54,27 @@ class DictionaryComParser < WordOfTheDayParser
       part_of_speech: part_of_speech,
       pronunciation: pronunciation,
       definition: definition,
-      source: URI.parse(url).host
     }
   end
+
+  def url
+    "https://www.dictionary.com/e/word-of-the-day/"
+  end
+
 end
 
 
 class DikiParser < WordOfTheDayParser
-  def fetch
-    url = "https://www.diki.pl/dictionary/word-of-the-day"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     word_box = doc.at_css(".wordofthedaybox")
-
     word = word_box.at_css(".hws .hw a").text.strip
-
     part_of_speech = word_box.at_css(".partOfSpeech").text.strip
-
     meanings = word_box.css("ol.foreignToNativeMeanings li a")
                        .map(&:text)
                        .map(&:strip)
                        .filter{|entry| entry.length > 0}
 
     first_example = word_box.at_css(".exampleSentence")
-
     example= ''
 
     if first_example
@@ -76,41 +89,37 @@ class DikiParser < WordOfTheDayParser
       part_of_speech: part_of_speech,
       meanings: meanings,
       example: example,
-      source: URI.parse(url).host
     }
   end
+
+  def url
+    "https://www.diki.pl/dictionary/word-of-the-day"
+  end
+
 end
 
 class WsjpParser < WordOfTheDayParser
-  def fetch
-    url = "https://wsjp.pl"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     day_word_box = doc.at_css(".day-word-box")
-
     word = day_word_box.at_css("h4").text.strip
-
     qualifier = day_word_box.at_css(".kwalifikator")&.text&.strip
-
     definition = day_word_box.css("span").last.text.strip
 
     {
       word: word,
       qualifier: qualifier,
       definition: definition,
-      source: URI.parse(url).host
     }
   end
+
+  def url
+    "https://wsjp.pl"
+  end
+
 end
 
 class MerriamParser < WordOfTheDayParser
-  def fetch
-    url = 'https://www.merriam-webster.com/word-of-the-day'
-    html = URI.open(url)
-
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     word_element = doc.at_css('.word-header-txt')
     word = word_element ? word_element.text.strip : "Nie znaleziono słowa"
 
@@ -138,26 +147,23 @@ class MerriamParser < WordOfTheDayParser
       pronunciation: pronunciation,
       definition: definition,
       example: example,
-      source: URI.parse(url).host
     }
   end
+
+  def url
+    'https://www.merriam-webster.com/word-of-the-day'
+  end
+
 end
 
 class BritannicaParser < WordOfTheDayParser
-  def fetch
-    url = "https://www.britannica.com/dictionary/eb/word-of-the-day"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     word = doc.at_css(".hw_d .hw_txt, .hw_m .hw_txt")&.text&.strip
 
     pronunciation = doc.at_css(".hpron_word")&.text&.strip
     pronunciation.gsub!(/^\//, '').gsub!(/\/$/, '') if pronunciation
-
     part_of_speech = doc.at_css(".fl")&.text&.strip
-
     definition = doc.at_css(".midb:first-of-type .midbt p")&.text&.strip.sub(/^\d+ /, '')
-
     example = doc.at_css(".midb:first-of-type .vib .vis .vi p")&.text&.strip
 
     {
@@ -166,18 +172,18 @@ class BritannicaParser < WordOfTheDayParser
       pronunciation: pronunciation,
       example: example,
       definition: definition,
-      source: URI.parse(url).host
     }
   end
+
+  def url
+    "https://www.britannica.com/dictionary/eb/word-of-the-day"
+  end
+
 end
 
 
 class CambridgeParser < WordOfTheDayParser
-  def fetch
-    url = "https://dictionary.cambridge.org/"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     word = doc.at_css(".wotd-hw a")&.text&.strip
 
     pronunciation = doc.at_css(".ipa.dipa")&.text&.strip
@@ -189,38 +195,37 @@ class CambridgeParser < WordOfTheDayParser
       word: word,
       pronunciation: pronunciation,
       definition: definition,
-      source: URI.parse(url).host
     }
   end
+
+  def url
+    "https://dictionary.cambridge.org/"
+  end
+
 end
 
 class WiktionaryParser < WordOfTheDayParser
-  def fetch
-    url = "https://en.wiktionary.org/wiki/Wiktionary:Main_Page"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     word_element = doc.at_css("#WOTD-rss-title")
     word = word_element&.text&.strip
     part_of_speech = word_element.parent.parent.next_element&.text&.strip
-
     definition = doc.at_css("#WOTD-rss-description ol li")&.text&.strip
 
     {
       word: word,
       definition: definition,
       part_of_speech: part_of_speech,
-      source: URI.parse(url).host
     }
   end
+
+  def url
+    "https://en.wiktionary.org/wiki/Wiktionary:Main_Page"
+  end
+
 end
 
 class OxfordParser < WordOfTheDayParser
-  def fetch
-    url = "https://www.oed.com/"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     word_element = doc.at_css(".wotd h3 a")
     word = word_element&.text&.strip
     part_of_speech = doc.at_css(".wotdPos")&.text&.strip
@@ -230,17 +235,17 @@ class OxfordParser < WordOfTheDayParser
       word: word,
       definition: definition,
       part_of_speech: part_of_speech,
-      source: "Oxford English Dictionary (#{URI.parse(url).host})"
     }
   end
+
+  def url
+    "https://www.oed.com/"
+  end
+
 end
 
 class LongmanParser < WordOfTheDayParser
-  def fetch
-    url = "https://www.ldoceonline.com/"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     word_element = doc.at_css("#wotd .title_entry a")
     word = word_element&.text&.strip
     definition = doc.at_css("#wotd .ldoceEntry .newline a")&.text&.strip
@@ -248,18 +253,18 @@ class LongmanParser < WordOfTheDayParser
     {
       word: word,
       definition: definition,
-      source: "Longman (#{URI.parse(url).host})"
     }
   end
+
+  def url
+    "https://www.ldoceonline.com/"
+  end
+
 end
 
 
 class PwnParser < WordOfTheDayParser
-  def fetch
-    url = "https://sjp.pwn.pl"
-    html = URI.open(url)
-    doc = Nokogiri::HTML(html)
-
+  def parse(doc)
     day_word_box = doc.at_css(".sjp-slowo-dnia")
     word_link = day_word_box.at_css("a")
 
@@ -275,9 +280,13 @@ class PwnParser < WordOfTheDayParser
     {
       word: word,
       definition: definition,
-      source: URI.parse(url).host
     }
   end
+
+  def url
+    "https://sjp.pwn.pl"
+  end
+
 end
 
 
