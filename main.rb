@@ -69,10 +69,10 @@ class DikiParser < WordOfTheDayParser
     word_box = doc.at_css(".wordofthedaybox")
     word = word_box.at_css(".hws .hw a").text.strip
     part_of_speech = word_box.at_css(".partOfSpeech").text.strip
-    meanings = word_box.css("ol.foreignToNativeMeanings li a")
-                       .map(&:text)
-                       .map(&:strip)
-                       .filter{|entry| entry.length > 0}
+    meanings = doc.css('ol.foreignToNativeMeanings li').map do |li|
+      li.xpath(".//span[@class='hw'] | .//span[@class='hwcomma']").map(&:text).join('; ').strip
+    end.join(", ")
+
 
     first_example = word_box.at_css(".exampleSentence")
     example= ''
@@ -87,7 +87,7 @@ class DikiParser < WordOfTheDayParser
     {
       word: word,
       part_of_speech: part_of_speech,
-      meanings: meanings,
+      definition: meanings,
       example: example,
     }
   end
