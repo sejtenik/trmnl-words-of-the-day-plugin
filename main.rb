@@ -189,7 +189,9 @@ class CambridgeParser < WordOfTheDayParser
     pronunciation = doc.at_css(".ipa.dipa")&.text&.strip
     pronunciation.gsub!(/^\//, '').gsub!(/\/$/, '') if pronunciation
 
-    definition = doc.css("p").find { |p| p.next_element&.name == "a" && p.next_element["href"]&.include?(word) }&.text&.strip
+    definition = doc.css("p").find { |p|
+      p.next_element&.name == "a" && p.next_element["href"]&.include?(word.gsub(" ", "-"))
+    }&.text&.strip
 
     {
       word: word,
