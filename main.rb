@@ -2,6 +2,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'json'
 require 'dotenv/load'
+require 'addressable/uri'
 
 class WordOfTheDayParser
   def fetch
@@ -271,7 +272,7 @@ class PwnParser < WordOfTheDayParser
     word_link = day_word_box.at_css("a")
 
     word = word_link.text.strip
-    word_url = word_link['href']
+    word_url = Addressable::URI.parse(word_link['href']).normalize.to_s
 
     word_html = URI.open(word_url)
     word_doc = Nokogiri::HTML(word_html)
