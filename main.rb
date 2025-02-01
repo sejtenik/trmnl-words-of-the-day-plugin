@@ -164,7 +164,7 @@ class BritannicaParser < WordOfTheDayParser
     pronunciation = doc.at_css(".hpron_word")&.text&.strip
     pronunciation.gsub!(/^\//, '').gsub!(/\/$/, '') if pronunciation
     part_of_speech = doc.at_css(".fl")&.text&.strip
-    definition = doc.at_css(".midb:first-of-type .midbt p")&.text&.strip.sub(/^\d+ /, '')
+    definition = doc.at_css(".midb:first-of-type .midbt p")&.text&.strip.sub(/^\d+ /, '').sub(/^:\s*/, '')
     example = doc.at_css(".midb:first-of-type .vib .vis .vi p")&.text&.strip
 
     {
