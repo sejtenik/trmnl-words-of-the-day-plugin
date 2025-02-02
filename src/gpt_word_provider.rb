@@ -19,7 +19,7 @@ class GptWordProvider < WordOfTheDayProvider
   def fetch_definitions(_, word)
     gpt_response = gpt_client.chat(
       parameters: {
-        model: "gpt-3.5-turbo",
+        model: "gpt-4",
         messages: [
           { role: "system", content: "You are a helpful assistant." },
           { role: "user", content: build_definitions_prompt(word) }
@@ -36,7 +36,7 @@ class GptWordProvider < WordOfTheDayProvider
   end
 
   def src_desc
-    "GPT3.5-turbo@#{@provider.src_desc.sub(/^www\./, '')}"
+    "GPT4@#{@provider.src_desc.sub(/^www\./, '')}"
   end
 
   def get_doc
@@ -65,7 +65,7 @@ class GptWordProvider < WordOfTheDayProvider
       2. Its pronunciation in IPA format. Use the standard IPA transcription as defined in the Oxford English Dictionary. For example, for "cat", use "kæt". 
       3. Its part of speech (e.g., noun, verb, adjective, etc.).
       4. An example sentence in English using the word.
-      5. A one- or two-word translation of the word into Polish in the context of the given definition and example.
+      5. A one- or two-word translation of the word into Polish, considering the word's most common meaning in context. Ensure that the translation reflects the intended sense of the word as defined in the previous sentences and example. Use the most accurate translation based on the context, even if the word has multiple meanings or uses.
       6. The difficulty level of the word according to the following scale:
          - A1 (Beginner): very basic expressions, ability to introduce oneself and describe simple situations.
          - A2 (Pre-Intermediate): basic information and simple conversations about personal life.
