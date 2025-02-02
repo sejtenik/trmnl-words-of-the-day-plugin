@@ -31,6 +31,11 @@
             margin-top: 10px;
         }
 
+        .level {
+            font-size: 1.0rem;
+            font-weight: normal;
+        }
+
         .part-of-speech {
             font-size: 1.1rem;
             font-family: "Verdana", sans-serif;
@@ -73,8 +78,10 @@
     <div class="columns">
         <div class="column">
             <div class="markdown gap--large word-of-the-day">
-                <h1 class="word">{{ word }}</h1>
-
+                <h1 class="word">{{ word }}{% if level %}
+                        <span class='level'>[{{ level }}]</span>
+                    {% endif %}
+                </h1>
                 <div class="content-element content content--small">
                   <span class="part-of-speech">
                     <i>{{ qualifier }} {{ part_of_speech }}</i></span>
@@ -82,7 +89,11 @@
                         <span class="pronunciation">/{{ pronunciation }}/</span>
                     {% endif %}
 
-                    <p class="definition multi-line-ellipsis">{{ definition }}</p>
+                    <p class="definition multi-line-ellipsis">{{ definition }}
+                        {% if meaning %}
+                            ({{ meaning }})
+                        {% endif %}
+                    </p>
                 </div>
 
                 {% if example %}

@@ -12,6 +12,11 @@ By aggregating data from multiple sources, the plugin offers users a convenient
 and enriching way to expand their vocabulary. Ideal for language learners and word enthusiasts, 
 it provides seamless access to daily linguistic insights from trusted dictionary platforms.
 
+It can also provide alternative word meanings using the GPT-3.5-turbo model. 
+To enable this functionality, set the OPENAI_API_KEY in the .env file.
+In this case, GPT will provide meanings, example usage, pronunciation, and more, 
+in parallel with conventional dictionaries, as one of the random options.
+
 ## Requirements
 This code interacts with various web sites and the TRMNL webhook API. You will need to host and execute 
 the code yourself to periodically push updated words to TRMNL.
