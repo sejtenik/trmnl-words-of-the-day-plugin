@@ -1,3 +1,5 @@
+require 'json'
+
 class TrmnlSender
   def self.send_to_trmnl(data_payload)
     trmnl_webhook_url = "https://usetrmnl.com/api/custom_plugins/#{ENV['TRMNL_PLUGIN_ID']}"
