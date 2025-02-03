@@ -19,7 +19,7 @@ class GptWordProvider < WordOfTheDayProvider
   def fetch_definitions(_, word)
     gpt_response = gpt_client.chat(
       parameters: {
-        model: "gpt-4",
+        model: "gpt-4o",
         messages: [
           { role: "system", content: "You are a helpful assistant." },
           { role: "user", content: build_definitions_prompt(word) }
@@ -36,7 +36,7 @@ class GptWordProvider < WordOfTheDayProvider
   end
 
   def src_desc
-    "GPT4@#{@provider.src_desc.sub(/^www\./, '')}"
+    "GPT4o@#{@provider.src_desc.sub(/^www\./, '')}"
   end
 
   def get_doc
@@ -60,23 +60,24 @@ class GptWordProvider < WordOfTheDayProvider
 
   def build_definitions_prompt(word)
     <<~PROMPT
-      Provide the following information about the word "#{word}":
-      1. An English definition in one or at most two sentences.
-      2. Its pronunciation in IPA format. Use the standard IPA transcription as defined in the Oxford English Dictionary. For example, for "cat", use "kæt". 
-      3. Its part of speech (e.g., noun, verb, adjective, etc.).
-      4. An example sentence in English using the word.
-      5. A one- or two-word translation of the word into Polish, considering the word's most common meaning in context. Ensure that the translation reflects the intended sense of the word as defined in the previous sentences and example. Use the most accurate translation based on the context, even if the word has multiple meanings or uses.
-      6. The difficulty level of the word according to the following scale:
-         - A1 (Beginner): very basic expressions, ability to introduce oneself and describe simple situations.
-         - A2 (Pre-Intermediate): basic information and simple conversations about personal life.
-         - B1 (Intermediate): understanding everyday topics and communicating during travel.
-         - B2 (Upper-Intermediate): fluent conversation, clear discussions, and well-structured written expression.
-         - C1 (Advanced): comprehension of complex texts, ability to detect irony and subtle meanings.
-         - C2 (Proficient): mastery in speaking and writing, with fluid and precise expression.
-         Choose only one option as a two-character code (e.g., "A1", "B2").
-      Answer in proper JSON format with the following keys: "definition", "pronunciation", "part_of_speech", "example", "meaning", "level".
-      Answer should start and end with curly braces. 
-    PROMPT
-  end
+    Provide the following information about the word "#{word}":
+    1. An English definition in one or at most two sentences.
+    2. Its pronunciation in IPA format. Use the standard IPA transcription as defined in the Oxford English Dictionary. For example, for "cat", use "kæt".
+    3. Its part of speech (e.g., noun, verb, adjective, etc.).
+    4. An example sentence in English using the word.
+    5. A translation of the word into Polish that accurately reflects its most common meaning in context and matches the part of speech specified in (3). The translation may consist of more than one or two words if necessary.
+    6. The difficulty level of the word according to the following scale:
+       - A1 (Beginner): very basic expressions, ability to introduce oneself and describe simple situations.
+       - A2 (Pre-Intermediate): basic information and simple conversations about personal life.
+       - B1 (Intermediate): understanding everyday topics and communicating during travel.
+       - B2 (Upper-Intermediate): fluent conversation, clear discussions, and well-structured written expression.
+       - C1 (Advanced): comprehension of complex texts, ability to detect irony and subtle meanings.
+       - C2 (Proficient): mastery in speaking and writing, with fluid and precise expression.
+       Choose only one option as a two-character code (e.g., "A1", "B2").
 
+    If "#{word}" is unknown, return exactly {} (no extra text, formatting, or newlines, no markdown).
+    Otherwise, return a valid JSON object with the keys "definition", "pronunciation", "part_of_speech", "example", "meaning", and "level". The response must start and end with curly braces.
+    Return only JSON in your response. Do not include any code blocks or other text.
+  PROMPT
+  end
 end
