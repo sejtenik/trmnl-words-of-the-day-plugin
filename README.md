@@ -29,8 +29,9 @@ the code yourself to periodically push updated words to TRMNL.
 3. Copy the Plugin UUID and your TRMNL API key.
 4. Download the code and rename the ``.env_template`` file to ``.env``. Then, populate it as follows:
 ```
-TRMNL_API_KEY=<your api key>
+TRMNL_API_KEY=<your TRMNL api key>
 TRMNL_PLUGIN_ID=<your plugin UUID>
+OPENAI_API_KEY=<optional, your Open AI api key>
 ```
 
 5. Run ``bundle``
