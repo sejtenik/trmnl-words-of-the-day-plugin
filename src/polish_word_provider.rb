@@ -2,7 +2,7 @@ require_relative 'word_of_the_day_provider'
 require 'addressable/uri'
 require 'open-uri'
 
-class PolishWordProvider < HtmlProvider
+class PolishWordProvider < MarkupDocumentProvider
 end
 
 class WsjpParser < PolishWordProvider

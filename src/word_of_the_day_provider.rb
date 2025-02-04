@@ -53,7 +53,8 @@ class WordOfTheDayProvider
 
 end
 
-class HtmlProvider < WordOfTheDayProvider
+#Provides definition from HTML and XML for given url
+class MarkupDocumentProvider < WordOfTheDayProvider
 
   def url
     raise NotImplementedError, "Subclasses must implement `url`"
@@ -64,8 +65,16 @@ class HtmlProvider < WordOfTheDayProvider
   end
 
   def get_doc
-    html = URI.open(url)
-    Nokogiri::HTML(html)
+    response = URI.open(url)
+    content_type = response.content_type
+
+    if content_type.include?('xml')
+      Nokogiri::XML(response)
+    elsif content_type.include?('html')
+      Nokogiri::HTML(response)
+    else
+      raise "Unsupported content type: #{content_type}"
+    end
   end
 
 end

@@ -1,7 +1,7 @@
 require 'nokogiri'
 require_relative 'word_of_the_day_provider'
 
-class EnglishWordProvider < HtmlProvider
+class EnglishWordProvider < MarkupDocumentProvider
 end
 
 class DictionaryComParser < EnglishWordProvider
@@ -278,3 +278,29 @@ class WordnikParser < EnglishWordProvider
   end
 
 end
+
+class WordsmithParser < EnglishWordProvider
+
+  def fetch_word(doc)
+    doc.at_css('item title').text.strip
+  end
+
+  def fetch_definitions(doc, word)
+    description = doc.at_css('item description').text.strip
+
+    part_of_speech = description.split(':').first.strip
+
+    definition = description.split(':').last.strip
+
+    {
+      definition: definition,
+      part_of_speech: part_of_speech
+    }
+  end
+
+  def url
+    "https://wordsmith.org/awad/rss1.xml"
+  end
+
+end
+
