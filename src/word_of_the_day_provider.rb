@@ -7,12 +7,13 @@ class WordOfTheDayProvider
   def fetch
     doc = get_doc
     word = fetch_word(doc)
-    word_definitions = fetch_definitions(doc, word)
+    definitions = fetch_definitions(doc, word)
 
-    word_definitions[:word] = (word.nil? or word.empty?) ? '>>Word not found<<' : word
-    word_definitions[:definition] = '>>Definition not found<<' if word_definitions[:definition].nil? or word_definitions[:definition].empty?
-    word_definitions[:source] = src_desc unless word_definitions[:source]
-    word_definitions.compact
+    definitions.merge(
+      word: nvl(word, '>>Word not found<<'),
+      definition: nvl(definitions[:definition], '>>Definition not found<<'),
+      source: nvl(definitions[:source], src_desc)
+    ).compact
   rescue => e
     {
       word: ">>#{e.class.to_s}<<",
@@ -49,6 +50,10 @@ class WordOfTheDayProvider
     else
       subclasses.flat_map { |subclass| leaf_classes(subclass) }
     end
+  end
+
+  def nvl(string, default)
+    string.nil? || string.empty? ? default : string
   end
 
 end

@@ -36,7 +36,7 @@ class GptWordProvider < WordOfTheDayProvider
     parsed
 
     unless parsed[:definition]
-      puts parsed
+      puts "No definition from model: #{parsed}"
       fetch_original_definition(word)
     end
   rescue => e
