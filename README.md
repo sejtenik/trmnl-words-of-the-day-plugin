@@ -14,7 +14,7 @@ an efficient and enriching way to expand vocabulary.
 Perfect for language learners and word enthusiasts, it offers daily linguistic insights 
 from trusted dictionary platforms.
 
-Additionally, the plugin can retrieve alternative meanings using the GPT-4 model. 
+Additionally, the plugin can retrieve alternative meanings using the GPT-4o model. 
 To activate this feature, set the OPENAI_API_KEY in the .env file. When enabled, 
 GPT will provide meanings, examples, pronunciation, and more as an alternative option 
 alongside conventional dictionaries.
