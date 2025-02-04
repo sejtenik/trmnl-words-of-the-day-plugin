@@ -5,17 +5,19 @@ Word of the Day private plugin for TRMNL.
 <img src="assets/word-of-the-day-plugin-trmnl.bmp" alt="screenshot" width="50%"/>
 
 ## Details
-This private plugin for TRMNL retrieves the Word of the Day from various online dictionaries 
-and presents it in a clear, organized format. It extracts key details such as the word, 
-its definition, pronunciation, and an example of usage (when available). 
-By aggregating data from multiple sources, the plugin offers users a convenient 
-and enriching way to expand their vocabulary. Ideal for language learners and word enthusiasts, 
-it provides seamless access to daily linguistic insights from trusted dictionary platforms.
+This private TRMNL plugin retrieves the Word of the Day from multiple online dictionaries 
+(10 in English, 2 in Polish, and 1 from English to Polish), presenting the information in a clear, 
+organized format. It extracts key details, such as the word, its definition, pronunciation, 
+and usage examples (when available). By aggregating data from various sources, it provides 
+an efficient and enriching way to expand vocabulary.
 
-It can also provide alternative word meanings using the GPT-3.5-turbo model. 
-To enable this functionality, set the OPENAI_API_KEY in the .env file.
-In this case, GPT will provide meanings, example usage, pronunciation, and more, 
-in parallel with conventional dictionaries, as one of the random options.
+Perfect for language learners and word enthusiasts, it offers daily linguistic insights 
+from trusted dictionary platforms.
+
+Additionally, the plugin can retrieve alternative meanings using the GPT-4 model. 
+To activate this feature, set the OPENAI_API_KEY in the .env file. When enabled, 
+GPT will provide meanings, examples, pronunciation, and more as an alternative option 
+alongside conventional dictionaries.
 
 ## Requirements
 This code interacts with various web sites and the TRMNL webhook API. You will need to host and execute 
