@@ -38,7 +38,7 @@ class DikiParser < EnglishWordProvider
 
   def fetch_definitions(doc, word)
     word_box = doc.at_css(".wordofthedaybox")
-    part_of_speech = word_box.at_css(".partOfSpeech").text.strip
+    part_of_speech = word_box.at_css(".partOfSpeech")&.text&.strip
     meanings = doc.css('ol.foreignToNativeMeanings li').map do |li|
       li.xpath(".//span[@class='hw'] | .//span[@class='hwcomma']").map(&:text).join('; ').strip
     end.join(", ")
@@ -47,7 +47,7 @@ class DikiParser < EnglishWordProvider
     example= ''
 
     if first_example
-      english_example = first_example.text.strip.split("\n").first.strip
+      english_example = first_example.text.strip.split("\n")&.first&.strip
       polish_translation = first_example.at_css(".exampleSentenceTranslation")&.text&.strip
 
       example = "#{english_example} #{polish_translation}"
@@ -168,7 +168,7 @@ class WiktionaryParser < EnglishWordProvider
   def fetch_definitions(doc, word)
     word_element = doc.at_css("#WOTD-rss-title")
     part_of_speech = word_element.parent.parent.next_element&.text&.strip
-    definition = doc.at_css("#WOTD-rss-description ol li")&.text&.strip
+    definition = doc.at_css("#WOTD-rss-description ol li")&.text&.strip&.gsub(/^\([^\)]+\)\s*/, '')&.strip
 
     {
       definition: definition,

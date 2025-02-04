@@ -12,7 +12,7 @@ class WordOfTheDayProvider
     word_definitions[:word] = (word.nil? or word.empty?) ? '>>Word not found<<' : word
     word_definitions[:definition] = '>>Definition not found<<' if word_definitions[:definition].nil? or word_definitions[:definition].empty?
     word_definitions[:source] = src_desc
-    word_definitions
+    word_definitions.compact
   rescue => e
     {
       word: ">>#{e.class.to_s}<<",

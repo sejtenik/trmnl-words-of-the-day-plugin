@@ -25,7 +25,8 @@ class GptWordProvider < WordOfTheDayProvider
           { role: "user", content: build_definitions_prompt(word) }
         ],
         temperature: 0.1,
-        max_tokens: 300
+        max_tokens: 300,
+        response_format: { "type": "json_object" }
       }
     )
 
