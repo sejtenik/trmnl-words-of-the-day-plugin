@@ -16,7 +16,7 @@ class GptWordProvider < WordOfTheDayProvider
     @provider.fetch_word(doc)
   end
 
-  def fetch_definitions(_, word)
+  def fetch_definitions(doc, word)
     gpt_response = gpt_client.chat(
       parameters: {
         model: "gpt-4o",
@@ -34,6 +34,14 @@ class GptWordProvider < WordOfTheDayProvider
     parsed = JSON.parse(model_result, symbolize_names: true)
     puts JSON.pretty_generate(parsed)
     parsed
+
+    unless parsed[:definition]
+      puts parsed
+      fetch_original_definition(word)
+    end
+  rescue => e
+    puts e
+    fetch_original_definition(word)
   end
 
   def src_desc
@@ -45,6 +53,13 @@ class GptWordProvider < WordOfTheDayProvider
   end
 
   private
+
+  def fetch_original_definition(word)
+    #fallback to original definition
+    orig_doc = @provider.get_doc
+    definition = @provider.fetch_definitions(orig_doc, word)
+    definition.merge(source: '*' + @provider.src_desc) #To indicate an exception for further analysis
+  end
 
   def init_random_english_word_provider
     @provider = WordOfTheDayProvider.providers
