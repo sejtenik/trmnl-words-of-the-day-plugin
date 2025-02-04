@@ -5,7 +5,7 @@ Word of the Day private plugin for TRMNL.
 <img src="assets/word-of-the-day-plugin-trmnl.bmp" alt="screenshot" width="50%"/>
 
 ## Details
-This private TRMNL plugin retrieves the Word of the Day from multiple online dictionaries 
+This private TRMNL plugin randomly retrieves the Word of the Day from multiple online dictionaries 
 (10 in English, 2 in Polish, and 1 from English to Polish), presenting the information in a clear, 
 organized format. It extracts key details, such as the word, its definition, pronunciation, 
 and usage examples (when available). By aggregating data from various sources, it provides 
