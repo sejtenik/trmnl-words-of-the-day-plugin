@@ -1,8 +1,8 @@
-# TRMNL Word of the Day private plugin
+# TRMNL Words of the Day private plugin
 
-Word of the Day private plugin for TRMNL.
+Words of the Day private plugin for TRMNL.
 
-<img src="assets/word-of-the-day-plugin-trmnl.bmp" alt="screenshot" width="50%"/>
+<img src="assets/words-of-the-day-plugin-trmnl.bmp" alt="screenshot" width="50%"/>
 
 ## Details
 This private TRMNL plugin randomly retrieves the Word of the Day from multiple online dictionaries 
