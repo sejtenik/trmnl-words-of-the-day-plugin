@@ -33,12 +33,13 @@ class GptWordProvider < WordOfTheDayProvider
     model_result = gpt_response.dig("choices", 0, "message", "content")
     parsed = JSON.parse(model_result, symbolize_names: true)
     puts JSON.pretty_generate(parsed)
-    parsed
 
     unless parsed[:definition]
       puts "No definition from model: #{parsed}"
-      fetch_original_definition(word)
+      return fetch_original_definition(word)
     end
+
+    parsed
   rescue => e
     puts e
     fetch_original_definition(word)
