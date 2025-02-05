@@ -67,7 +67,7 @@ class DikiParser < EnglishWordProvider
 end
 
 
-class MerriamParser < EnglishWordProvider
+class MerriamWebsterParser < EnglishWordProvider
   def fetch_word(doc)
     word_element = doc.at_css('.word-header-txt')
     word_element&.text&.strip

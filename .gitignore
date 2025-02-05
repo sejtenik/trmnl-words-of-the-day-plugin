@@ -1,3 +1,4 @@
 /.env
 /.idea/
 /cache/
+/providers_shuffle_state.yml
