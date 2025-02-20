@@ -15,10 +15,12 @@ class WsjpParser < PolishWordProvider
     day_word_box = doc.at_css(".day-word-box")
     qualifier = day_word_box.at_css(".kwalifikator")&.text&.strip
     definition = day_word_box.css("span").last.text.strip
+    link = doc.at('div.day-word-box a')['href']
 
     {
       qualifier: qualifier,
       definition: definition,
+      url: link
     }
   end
 
@@ -50,6 +52,7 @@ class PwnParser < PolishWordProvider
 
     {
       definition: definition,
+      url: word_url
     }
   end
 

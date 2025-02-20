@@ -12,7 +12,8 @@ class WordOfTheDayProvider
     definitions.merge(
       word: nvl(word, '>>Word not found<<'),
       definition: nvl(definitions[:definition], '>>Definition not found<<'),
-      source: nvl(definitions[:source], src_desc)
+      source: nvl(definitions[:source], src_desc),
+      url: nvl(definitions[:url], respond_to?(:url) ? url : nil)
     ).compact
   rescue => e
     {

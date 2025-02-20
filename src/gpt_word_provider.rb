@@ -39,6 +39,8 @@ class GptWordProvider < WordOfTheDayProvider
       return fetch_original_definition(word)
     end
 
+    parsed[:url] = @provider.url
+
     parsed
   rescue => e
     puts e

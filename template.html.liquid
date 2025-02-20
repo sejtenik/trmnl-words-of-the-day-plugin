@@ -1,3 +1,7 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+        integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <div class="layout">
     <style>
         .layout {
@@ -74,6 +78,12 @@
             overflow: hidden;
         }
 
+        .qr-code {
+            position: fixed;
+            top: 0px;
+            left: 680px;
+            z-index: 9999;
+        }
     </style>
     <div class="columns">
         <div class="column">
@@ -104,9 +114,22 @@
             </div>
         </div>
     </div>
+    <div class = 'qr-code' data-qr-mode="text" data-qr-size="100"
+         data-text="{{ url }}"></div>
 </div>
+
+
 
 <div class="title_bar">
     <span class="title">Words of the day</span>
     <span class="instance">{{ source }}</span>
 </div>
+
+<script>
+    Array.from(document.querySelectorAll('[data-qr-mode]')).forEach(e => {
+        let size = parseInt(e.getAttribute('data-qr-size'));
+        let text = e.getAttribute('data-text');
+        if (text) { new QRCode(e, {text, width: size, height: size}); }
+    });
+</script>
+

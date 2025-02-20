@@ -14,11 +14,13 @@ class DictionaryComParser < EnglishWordProvider
     pronunciation.gsub!(/^\[|\]$/, '').strip! if pronunciation
     part_of_speech = doc.at_css(".otd-item-headword__pos p span.italic")&.text&.strip
     definition = doc.at_css(".otd-item-headword__pos p:not(.italic) + p")&.text&.strip
+    definition_url = doc.at('a.otd-item-headword__anchors-link')['href']
 
     {
       part_of_speech: part_of_speech,
       pronunciation: pronunciation,
       definition: definition,
+      url: definition_url
     }
   end
 
@@ -53,10 +55,14 @@ class DikiParser < EnglishWordProvider
       example = "#{english_example} #{polish_translation}"
     end
 
+    link = word_box&.at('a.plainLink')['href']
+
+
     {
       part_of_speech: part_of_speech,
       definition: meanings,
       example: example,
+      url: URI.parse(url).host + link
     }
   end
 
@@ -93,11 +99,15 @@ class MerriamWebsterParser < EnglishWordProvider
 
     example = definition_container.css("p").find { |p| p.text.strip.start_with?("//") }
                 &.inner_html&.gsub("//", "")&.strip
+
+    link = doc.at('a:contains("See the entry >")')['href']
+
     {
       part_of_speech: part_of_speech,
       pronunciation: pronunciation,
       definition: definition,
       example: example,
+      url: link
     }
   end
 
@@ -147,14 +157,17 @@ class CambridgeParser < EnglishWordProvider
       p.next_element&.name == "a" && p.next_element["href"]&.include?(word.gsub(" ", "-"))
     }&.text&.strip
 
+    link = doc.at_css(".wotd-hw a")['href']
+
     {
       pronunciation: pronunciation,
       definition: definition,
+      url: url + link
     }
   end
 
   def url
-    "https://dictionary.cambridge.org/"
+    "https://dictionary.cambridge.org"
   end
 
 end
@@ -170,9 +183,15 @@ class WiktionaryParser < EnglishWordProvider
     part_of_speech = word_element.parent.parent.next_element&.text&.strip
     definition = doc.at_css("#WOTD-rss-description ol li")&.text&.strip&.gsub(/^\([^\)]+\)\s*/, '')&.strip
 
+    link = doc.at('a[title*="Word of the day"]:contains("view")')['href']
+
+    uri = URI.parse(url)
+
+
     {
       definition: definition,
       part_of_speech: part_of_speech,
+      url: "#{uri.scheme}://#{uri.host}#{link}"
     }
   end
 
@@ -192,14 +211,17 @@ class OxfordParser < EnglishWordProvider
     part_of_speech = doc.at_css(".wotdPos")&.text&.strip
     definition = doc.at_css(".wotdDef")&.text&.strip
 
+    link = doc.at_css(".wotd h3 a")['href']
+
     {
       definition: definition,
       part_of_speech: part_of_speech,
+      url: url + link
     }
   end
 
   def url
-    "https://www.oed.com/"
+    "https://www.oed.com"
   end
 
 end
@@ -212,9 +234,11 @@ class LongmanParser < EnglishWordProvider
 
   def fetch_definitions(doc, word)
     definition = doc.at_css("#wotd .ldoceEntry .newline a")&.text&.strip
+    link = doc.at_css("#wotd .title_entry a")['href']
 
     {
       definition: definition,
+      url: link
     }
   end
 
@@ -246,7 +270,8 @@ class WordReferenceParser < EnglishWordProvider
       part_of_speech: parts_of_speech,
       pronunciation: pronunciation,
       definition: definition,
-      example: examples
+      example: examples,
+      url: link
     }
   end
 
@@ -290,11 +315,14 @@ class WordsmithParser < EnglishWordProvider
 
     part_of_speech = description.split(':').first.strip
 
-    definition = description.split(':').last.strip
+    definition = description.split(':')[1]&.strip&.sub(/^\d+\.\s*/, '')
+
+    link = doc.at_css('item link').text.strip
 
     {
       definition: definition,
-      part_of_speech: part_of_speech
+      part_of_speech: part_of_speech,
+      url: link
     }
   end
 
