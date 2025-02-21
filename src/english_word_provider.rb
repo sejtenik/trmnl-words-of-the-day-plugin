@@ -154,7 +154,7 @@ class CambridgeParser < EnglishWordProvider
     pronunciation.gsub!(/^\//, '').gsub!(/\/$/, '') if pronunciation
 
     definition = doc.css("p").find { |p|
-      p.next_element&.name == "a" && p.next_element["href"]&.include?(word.gsub(" ", "-"))
+      p.next_element&.name == "a" && p.next_element["href"]&.include?(remove_accents(word.gsub(" ", "-")))
     }&.text&.strip
 
     link = doc.at_css(".wotd-hw a")['href']
@@ -168,6 +168,11 @@ class CambridgeParser < EnglishWordProvider
 
   def url
     "https://dictionary.cambridge.org"
+  end
+
+  private
+  def remove_accents(text)
+    text.unicode_normalize(:nfd).gsub(/\p{Mn}/, '')
   end
 
 end
