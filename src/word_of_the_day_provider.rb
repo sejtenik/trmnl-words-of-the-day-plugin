@@ -1,26 +1,42 @@
 require 'open-uri'
 require 'nokogiri'
+require 'moneta'
 
 class WordOfTheDayProvider
   @providers = []
 
   def fetch
+    cache = Moneta.new(:File, dir: 'cache', serializer: :json)
+
     doc = get_doc
     word = fetch_word(doc)
+
+    cache_key = "#{src_desc}_#{word}.json"
+
+    if cache.key?(cache_key)
+      puts 'Using cache'
+      return cache[cache_key]
+    end
+
     definitions = fetch_definitions(doc, word)
 
-    definitions.merge(
+    result = definitions.merge(
       word: nvl(word, '>>Word not found<<'),
       definition: nvl(definitions[:definition], '>>Definition not found<<'),
       source: nvl(definitions[:source], src_desc),
       url: prepare_short_url(definitions)
     ).compact
+
+    cache[cache_key] = result
+    result
   rescue => e
     {
       word: ">>#{e.class.to_s}<<",
       definition: ">>#{e.message}<<",
       source: src_desc
     }
+  ensure
+    cache.close
   end
 
   def fetch_word(doc)
@@ -60,6 +76,10 @@ class WordOfTheDayProvider
 
   #TODO refactor, extract class
   def shorten_url_with_tinyurl(long_url)
+    if long_url.length < 60
+      return long_url
+    end
+
     uri = URI("https://api.tinyurl.com/create")
 
     request = Net::HTTP::Post.new(uri)
@@ -76,9 +96,12 @@ class WordOfTheDayProvider
       data = JSON.parse(response.body)
       data.dig("data", "tiny_url")
     else
-      puts "Błąd: #{response.code} - #{response.body}"
-      nil
+      puts "tinyurl error: #{response.code} - #{response.body}"
+      long_url
     end
+  rescue => e
+    puts "tinyurl error: #{e.message}"
+    return long_url
   end
 
   def prepare_short_url(definitions)
