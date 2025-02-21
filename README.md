@@ -32,6 +32,7 @@ the code yourself to periodically push updated words to TRMNL.
 TRMNL_API_KEY=<your TRMNL api key>
 TRMNL_PLUGIN_ID=<your plugin UUID>
 OPENAI_API_KEY=<optional, your Open AI api key>
+TINYURL_API_KEY=<tiny URL api key>
 ```
 
 5. Run ``bundle``

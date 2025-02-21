@@ -13,7 +13,7 @@ class WordOfTheDayProvider
       word: nvl(word, '>>Word not found<<'),
       definition: nvl(definitions[:definition], '>>Definition not found<<'),
       source: nvl(definitions[:source], src_desc),
-      url: nvl(definitions[:url], respond_to?(:url) ? url : nil)
+      url: prepare_short_url(definitions)
     ).compact
   rescue => e
     {
@@ -53,8 +53,44 @@ class WordOfTheDayProvider
     end
   end
 
+  private
   def nvl(string, default)
     string.nil? || string.empty? ? default : string
+  end
+
+  #TODO refactor, extract class
+  def shorten_url_with_tinyurl(long_url)
+    uri = URI("https://api.tinyurl.com/create")
+
+    request = Net::HTTP::Post.new(uri)
+    request["Content-Type"] = "application/json"
+    request["Authorization"] = "Bearer #{ENV['TINYURL_API_KEY']}"
+
+    request.body = { url: long_url}.to_json
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+      data.dig("data", "tiny_url")
+    else
+      puts "Błąd: #{response.code} - #{response.body}"
+      nil
+    end
+  end
+
+  def prepare_short_url(definitions)
+    if definitions[:url]
+      return shorten_url_with_tinyurl(definitions[:url])
+    end
+
+    if respond_to? :url
+      return shorten_url_with_tinyurl(url)
+    end
+
+    nil
   end
 
 end
