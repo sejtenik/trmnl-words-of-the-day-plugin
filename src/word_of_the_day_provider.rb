@@ -30,12 +30,8 @@ class WordOfTheDayProvider
     cache[cache_key] = result
     result
   rescue => e
-    puts e.backtrace.join("\n")
-    {
-      word: ">>#{e.class.to_s}<<",
-      definition: ">>#{e.message}<<",
-      source: src_desc
-    }
+    puts "#{src_desc} #{e.full_message}"
+    raise
   ensure
     cache.close
   end

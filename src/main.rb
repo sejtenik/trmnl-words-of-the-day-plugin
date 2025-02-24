@@ -7,6 +7,7 @@ require_relative 'provider_shuffle_machine'
 
 word_of_the_day = nil
 shuffleMachine = ProviderShuffleMachine.new
+error = false
 
 loop do
   provider = shuffleMachine.next_provider
@@ -15,8 +16,14 @@ loop do
     break if word_of_the_day
   rescue StandardError => e
     puts "Error: #{e.class} - #{e.message}"
+    error = true
   end
 end
 
 puts word_of_the_day
+if error
+  #let's indicate that there was an error - to check logs later
+  word_of_the_day['source'] += '!'
+end
+
 TrmnlSender.send_to_trmnl(word_of_the_day)
