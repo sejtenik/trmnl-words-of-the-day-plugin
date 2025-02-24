@@ -46,9 +46,8 @@ class PwnParser < PolishWordProvider
 
     word_html = URI.open(word_url)
     word_doc = Nokogiri::HTML(word_html)
-    definition_text = word_doc.at_css(".znacz").text.strip
-    definition_text.force_encoding('UTF-8')
-    definition = definition_text.match(/«(.*?)»/)[1]
+    definition_text = word_doc.text.match(/«(.*?)»/)
+    definition = definition_text[1]&.strip
 
     {
       definition: definition,
