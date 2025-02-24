@@ -1,4 +1,5 @@
 require 'nokogiri'
+
 require_relative 'word_of_the_day_provider'
 
 class EnglishWordProvider < MarkupDocumentProvider
@@ -337,3 +338,104 @@ class WordsmithParser < EnglishWordProvider
 
 end
 
+class VocabularyParser < EnglishWordProvider
+
+  def fetch_word(doc)
+    doc.at('a.word-of-the-day')&.text&.strip
+  end
+
+  def fetch_definitions(doc, word)
+    link = doc.at('a.word-of-the-day')['href']
+    definition = doc.at('p.txt-wod-usage')&.text&.strip
+    uri = URI.parse(url)
+    word_url = "#{uri.scheme}://#{uri.host}#{link}"
+    word_html = URI.open(word_url)
+    word_doc = Nokogiri::HTML(word_html)
+    ipa = word_doc.at('div.ipa-with-audio span.span-replace-h3')&.inner_html&.force_encoding("utf-8")&.strip&.gsub('/', '')
+    part_of_speech = word_doc.at('div.pos-icon')&.text&.strip
+
+    {
+      definition: definition,
+      pronunciation: ipa,
+      part_of_speech: part_of_speech,
+      url: word_url
+    }
+  end
+
+  def url
+    "https://www.vocabulary.com/word-of-the-day/"
+  end
+end
+
+class TheFreeDictionaryParser < EnglishWordProvider
+
+  def fetch_word(doc)
+    doc.at_css("#Content_CA_WOD_0_DataZone h3 a").text.strip
+  end
+
+  def fetch_definitions(doc, word)
+    definition = doc.at_css("#Content_CA_WOD_0_DataZone td span").text.strip
+    part_of_speech = doc.at_css("#Content_CA_WOD_0_DataZone td:nth-of-type(2)")&.text&.strip[/\((.*?)\)/, 1]
+    link = "#{url}#{word}"
+    usage = doc.css("#Content_CA_WOD_0_DataZone td").last.text.strip.split("Discuss").first.strip
+
+    word_html = URI.open(link)
+    word_doc = Nokogiri::HTML(word_html)
+
+    pronunciation_html = word_doc.at_css("span.pron")&.inner_html&.gsub(/[()]/, '')
+    pronunciation_html = CGI.unescapeHTML(pronunciation_html)
+
+    {
+      definition: definition,
+      part_of_speech: part_of_speech,
+      url: link,
+      example: usage,
+      pronunciation: pronunciation_html
+    }
+  end
+
+  def url
+    "https://www.thefreedictionary.com/"
+  end
+end
+
+class NYTimesParser < EnglishWordProvider
+
+  def fetch_word(doc)
+    word_link = doc.at_css('a:has(h3:contains("Word of the Day"))').text.strip
+    word_link.split(':').last.strip
+  end
+
+  def fetch_definitions(doc, word)
+
+    link = 'https://www.nytimes.com' + doc.at_css('a:has(h3:contains("Word of the Day"))')['href']
+
+    options = {
+      "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+
+    word_html = URI.open(link, options)
+    word_doc = Nokogiri::HTML(word_html)
+
+    h2 = word_doc.at_css("h2:contains('#{word}')")
+    h2_text = h2.text.strip
+
+    pronunciation = h2_text[/\\ (.*?) \\/, 1]&.strip
+
+    part_of_speech = h2_text.split.last.strip
+
+    blockquote = h2.next_element if h2.next_element&.name == 'blockquote'
+    definition = blockquote.at_css('p')&.text&.strip.sub(/^: /, '') if blockquote
+
+    {
+      definition: definition,
+      part_of_speech: part_of_speech,
+      url: link,
+      pronunciation: pronunciation
+    }
+  end
+
+  def url
+    "https://www.nytimes.com/column/learning-word-of-the-day"
+  end
+end
