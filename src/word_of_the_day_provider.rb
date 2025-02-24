@@ -15,7 +15,7 @@ class WordOfTheDayProvider
 
     if cache.key?(cache_key)
       puts 'Using cache'
-      return cache[cache_key]
+      return fetch_with_touch(cache, cache_key)
     end
 
     definitions = fetch_definitions(doc, word)
@@ -115,6 +115,16 @@ class WordOfTheDayProvider
     end
 
     nil
+  end
+
+  def fetch_with_touch(cache, key)
+    value = cache[key]
+
+    if value
+      cache[key] = value
+    end
+
+    value
   end
 
 end

@@ -337,6 +337,7 @@ class WordsmithParser < EnglishWordProvider
 
 end
 
+#FIXME - on some environments it gives: 403 forbidden
 class VocabularyParser < EnglishWordProvider
 
   def fetch_word(doc)
@@ -502,3 +503,6 @@ class WordleParser < EnglishWordProvider
   end
 
 end
+
+
+#TODO https://www.collinsdictionary.com/ - need to bypass cloudflare check
