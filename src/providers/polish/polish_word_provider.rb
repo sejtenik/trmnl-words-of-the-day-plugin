@@ -1,0 +1,3 @@
+class PolishWordProvider < MarkupDocumentProvider
+end
+

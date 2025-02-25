@@ -1,9 +1,14 @@
 require 'yaml'
 require 'date'
-require_relative 'word_of_the_day_provider'
+
+Dir.glob(File.join(__dir__, "providers/**/*.rb")).each { |file| require_relative file }
+require_relative 'providers/word_of_the_day_provider'
 
 STATE_FILE = 'providers_shuffle_state.yml'
 
+# Generates a random permutation of all available providers and saves it to a file.
+# Then, it returns the next provider, removing it from the list.
+# Once the list is exhausted, a new permutation is generated.
 class ProviderShuffleMachine
 
   def next_provider

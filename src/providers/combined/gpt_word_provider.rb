@@ -1,7 +1,7 @@
 require 'openai'
 require 'json'
-require_relative 'word_of_the_day_provider'
-require_relative 'english_word_provider'
+require_relative '../word_of_the_day_provider'
+#require_relative '../english_word_provider'
 
 # For this provider, I decided to rely on conventional online dictionaries for selecting the Word of the Day.
 # The GPT model, however, is tasked with generating the definition and other attributes.
