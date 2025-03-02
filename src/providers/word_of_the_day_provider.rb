@@ -5,6 +5,7 @@ require_relative '../tools'
 require_relative '../url_shortener'
 
 class WordOfTheDayProvider
+  CACHE_TTL = 24 * 60 * 60
   @providers = []
 
   def fetch
@@ -17,7 +18,7 @@ class WordOfTheDayProvider
 
     if cache.key?(cache_key)
       puts 'Using cache'
-      return fetch_with_touch(cache, cache_key)
+      return fetch_with_checks(cache, cache_key)
     end
 
     definitions = fetch_definitions(doc, word)
@@ -26,7 +27,8 @@ class WordOfTheDayProvider
       word: Tools.nvl(word, '>>Word not found<<'),
       definition: Tools.nvl(definitions[:definition], '>>Definition not found<<'),
       source: Tools.nvl(definitions[:source], src_desc),
-      url: prepare_short_url(definitions)
+      url: prepare_short_url(definitions),
+      creation_date: Time.now
     ).compact
 
     cache[cache_key] = result
@@ -74,8 +76,14 @@ class WordOfTheDayProvider
     target_url ? UrlShortener.shorten_url_with_tinyurl(target_url) : nil
   end
 
-  def fetch_with_touch(cache, key)
+  def fetch_with_checks(cache, key)
     value = cache[key]
+
+    value = value.transform_keys(&:to_sym)
+
+    if value[:creation_date].nil? || Time.now - Time.parse(value[:creation_date]) > CACHE_TTL
+      raise StaleDefinitionError, "Definition for #{key} is outdated."
+    end
 
     if value
       cache[key] = value

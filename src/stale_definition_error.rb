@@ -1,0 +1,1 @@
+class StaleDefinitionError < StandardError; end

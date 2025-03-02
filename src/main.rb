@@ -1,16 +1,19 @@
 require 'dotenv/load'
 require_relative 'provider_shuffle_machine'
 require_relative 'trmnl_sender'
+require_relative 'stale_definition_error'
 
 word_of_the_day = nil
-shuffleMachine = ProviderShuffleMachine.new
+shuffle_machine = ProviderShuffleMachine.new
 error = false
 
 loop do
-  provider = shuffleMachine.next_provider
+  provider = shuffle_machine.next_provider
   begin
     word_of_the_day = provider.fetch
     break if word_of_the_day
+  rescue StaleDefinitionError => e
+    puts "Error: #{e.class} - #{e.message}"
   rescue StandardError => e
     puts "Error: #{e.class} - #{e.message}"
     error = true
