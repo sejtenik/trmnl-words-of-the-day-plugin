@@ -13,14 +13,22 @@ class CambridgeParser < EnglishWordProvider
       p.next_element&.name == "a" && p.next_element["href"]&.include?(Tools.remove_accents(word.gsub(" ", "-")))
     }&.text&.strip
 
-    link = doc.at_css(".wotd-hw a")['href']
+    link = url + doc.at_css(".wotd-hw a")['href']
 
-    #TODO go to 'link' and the grab part of speech and an example usage
+    word_doc = get_details_doc(link)
+
+    part_of_speech = word_doc.at_css('.pos.dpos').text.strip
+
+    level = word_doc.at_css('.epp-xref.dxref')&.text&.strip
+    example = word_doc.at_css('.eg.dexamp')&.text&.strip
 
     {
       pronunciation: pronunciation,
       definition: definition,
-      url: url + link
+      part_of_speech: part_of_speech,
+      level: level,
+      example: example,
+      url: link
     }
   end
 
