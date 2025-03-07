@@ -10,12 +10,19 @@ class DictionaryComParser < EnglishWordProvider
     definition = doc.at_css(".otd-item-headword__pos p:not(.italic) + p")&.text&.strip
     definition_url = doc.at('a.otd-item-headword__anchors-link')['href']
 
-    #TODO get an example
+    examples_section = doc.xpath("//p[contains(., 'EXAMPLES OF') or contains(., 'EXAMPLES')]").first
+
+    if examples_section
+      first_example = examples_section.xpath("following-sibling::ul[1]/li[1]").first&.text&.strip || ""
+
+      first_example = first_example.gsub(/<\/?[^>]*>/, "").gsub(/\s+/, " ").strip
+    end
 
     {
       part_of_speech: part_of_speech,
       pronunciation: pronunciation,
       definition: definition,
+      example: first_example,
       url: definition_url
     }
   end
