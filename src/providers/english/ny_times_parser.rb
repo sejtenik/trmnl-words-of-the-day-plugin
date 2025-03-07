@@ -9,12 +9,7 @@ class NYTimesParser < EnglishWordProvider
 
     link = 'https://www.nytimes.com' + doc.at_css('a:has(h3:contains("Word of the Day"))')['href']
 
-    options = {
-      "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-
-    word_html = URI.open(link, options)
-    word_doc = Nokogiri::HTML(word_html)
+    word_doc = get_details_doc(link, true)
 
     h2 = word_doc.at_css("h2:contains('#{word}')")
     h2_text = h2.text.strip

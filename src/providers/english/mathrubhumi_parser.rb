@@ -7,8 +7,8 @@ class MathrubhumiParser < EnglishWordProvider
 
   def fetch_definitions(doc, word)
     link = 'https://english.mathrubhumi.com' + doc.at_xpath('//a[h1[contains(text(), "Word of the day")]]')['href']
-    word_html = URI.open(link)
-    word_doc = Nokogiri::HTML(word_html)
+
+    word_doc = get_details_doc(link)
 
     divs = word_doc.css('div.mpp-story-content-details-main.my-3')
 

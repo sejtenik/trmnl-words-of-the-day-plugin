@@ -24,4 +24,25 @@ class MarkupDocumentProvider < WordOfTheDayProvider
     end
   end
 
+  private
+  def get_details_doc(link, add_user_agent = false)
+    word_url = normalize_url(link)
+    options = {}
+    if add_user_agent
+      options = {
+        "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      }
+    end
+    response = URI.open(word_url, options)
+    if response.content_type.include?('html')
+      Nokogiri::HTML(response)
+    else
+      raise "Unsupported content type: #{response.content_type}"
+    end
+  end
+
+  def normalize_url(link)
+    Addressable::URI.parse(link).normalize.to_s
+  end
+
 end

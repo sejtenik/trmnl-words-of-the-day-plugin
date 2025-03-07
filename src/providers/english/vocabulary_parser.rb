@@ -11,11 +11,11 @@ class VocabularyParser < EnglishWordProvider
     link = doc.at('a.word-of-the-day')['href']
     definition = doc.at('p.txt-wod-usage')&.inner_html&.force_encoding("utf-8")&.strip
     uri = URI.parse(url)
-    link_parsed = Addressable::URI.parse(link).normalize.to_s
+    link_parsed = normalize_url(link)
 
     word_url = "#{uri.scheme}://#{uri.host}#{link_parsed}"
-    word_html = URI.open(word_url)
-    word_doc = Nokogiri::HTML(word_html)
+    word_doc = get_details_doc(word_url)
+
     ipa = word_doc.at('div.ipa-with-audio span.span-replace-h3')&.inner_html&.force_encoding("utf-8")&.strip&.gsub('/', '')
     part_of_speech = word_doc.at('div.pos-icon')&.text&.strip
 

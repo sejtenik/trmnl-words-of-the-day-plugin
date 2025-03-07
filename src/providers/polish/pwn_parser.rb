@@ -12,10 +12,9 @@ class PwnParser < PolishWordProvider
     day_word_box = doc.at_css(".sjp-slowo-dnia")
     word_link = day_word_box.at_css("a")
 
-    word_url = Addressable::URI.parse(word_link['href']).normalize.to_s
+    word_url = word_link['href']
+    word_doc = get_details_doc(word_url)
 
-    word_html = URI.open(word_url)
-    word_doc = Nokogiri::HTML(word_html)
     definition_text = word_doc.text.match(/«(.*?)»/)
     definition = definition_text[1]&.strip
 
