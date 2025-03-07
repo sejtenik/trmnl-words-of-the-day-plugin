@@ -13,11 +13,25 @@ class WordsmithParser < EnglishWordProvider
 
     link = doc.at_css('item link').text.strip
 
-    #TODO go to link and get pronunciation and example
+    word_doc = get_details_doc(link)
+
+    pronunciation = word_doc.css('div').select do |div|
+      div.previous_element&.text&.strip == "PRONUNCIATION:"
+    end&.first&.text&.strip&.gsub(/^\(|\)$/, '')
+
+    usage = word_doc.css('div').select do |div|
+      div.previous_element&.text&.strip == "USAGE:"
+    end&.first&.text&.strip&.gsub(/\n/, ' ')
+
+    if usage =~ /“(.*?)”/m
+      usage = $1
+    end
 
     {
       definition: definition,
       part_of_speech: part_of_speech,
+      pronunciation: pronunciation,
+      example: usage,
       url: link
     }
   end
