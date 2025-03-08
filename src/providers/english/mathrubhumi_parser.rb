@@ -22,6 +22,9 @@ class MathrubhumiParser < EnglishWordProvider
         meaning = divs[index + 1]&.at_css('p')&.text&.strip
       when 'Pronunciation'
         pronunciation = divs[index + 1]&.at_css('p')&.text&.strip
+        if pronunciation&.include?('/')
+          pronunciation = pronunciation[/\/(.*?)\//, 1]
+        end
       when 'Examples from books and articles'
         example = divs[index + 1]&.at_css('li')&.text&.strip
       end
