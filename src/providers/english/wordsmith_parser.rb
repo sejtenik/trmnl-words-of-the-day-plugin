@@ -13,13 +13,13 @@ class WordsmithParser < EnglishWordProvider
 
     link = doc.at_css('item link').text.strip
 
-    word_doc = get_details_doc(link)
+    @word_doc = get_details_doc(link)
 
-    pronunciation = word_doc.css('div').select do |div|
+    pronunciation = @word_doc.css('div').select do |div|
       div.previous_element&.text&.strip == "PRONUNCIATION:"
     end&.first&.text&.strip&.gsub(/^\(|\)$/, '')
 
-    usage = word_doc.css('div').select do |div|
+    usage = @word_doc.css('div').select do |div|
       div.previous_element&.text&.strip == "USAGE:"
     end&.first&.text&.strip&.gsub(/\n/, ' ')
 

@@ -11,10 +11,10 @@ class WiktionaryParser < EnglishWordProvider
 
     link = word_element.parent['href']
     link = resolve_url(link)
-    word_doc = get_details_doc(link)
-    pronunciation = word_doc.at_css('span.IPA')&.text&.strip&.gsub!(/^\//, '')&.gsub!(/\/$/, '')&.strip
+    @word_doc = get_details_doc(link)
+    pronunciation = @word_doc.at_css('span.IPA')&.text&.strip&.gsub!(/^\//, '')&.gsub!(/\/$/, '')&.strip
 
-    first_example = word_doc.css('dd div.h-usage-example i.e-example')&.first&.text&.strip
+    first_example = @word_doc.css('dd div.h-usage-example i.e-example')&.first&.text&.strip
 
     {
       definition: definition,

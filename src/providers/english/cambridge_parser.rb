@@ -15,12 +15,12 @@ class CambridgeParser < EnglishWordProvider
 
     link = url + doc.at_css(".wotd-hw a")['href']
 
-    word_doc = get_details_doc(link)
+    @word_doc = get_details_doc(link)
 
-    part_of_speech = word_doc.at_css('.pos.dpos').text.strip
+    part_of_speech = @word_doc.at_css('.pos.dpos').text.strip
 
-    level = word_doc.at_css('.epp-xref.dxref')&.text&.strip
-    example = word_doc.at_css('.eg.dexamp')&.text&.strip
+    level = @word_doc.at_css('.epp-xref.dxref')&.text&.strip
+    example = @word_doc.at_css('.eg.dexamp')&.text&.strip
 
     {
       pronunciation: pronunciation,

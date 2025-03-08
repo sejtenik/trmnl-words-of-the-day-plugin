@@ -1,6 +1,8 @@
 require 'nokogiri'
 require 'moneta'
 require 'time'
+require 'fileutils'
+
 require_relative '../tools'
 require_relative '../url_shortener'
 
@@ -35,6 +37,8 @@ class WordOfTheDayProvider
     result
   rescue => e
     puts "#{src_desc} #{e.full_message}"
+    save_logs(doc)
+    save_logs(@word_doc)
     raise
   ensure
     cache.close
@@ -82,7 +86,7 @@ class WordOfTheDayProvider
     value = value.transform_keys(&:to_sym)
 
     if value[:creation_date].nil? || Time.now - Time.parse(value[:creation_date]) > CACHE_TTL
-      raise StaleDefinitionError, "Definition for #{key} is outdated."
+      raise StaleDefinitionError, "Definition for #{key} is outdated - creation_date: #{value[:creation_date]}"
     end
 
     if value
@@ -90,6 +94,23 @@ class WordOfTheDayProvider
     end
 
     value
+  end
+
+  def save_logs(resp)
+    if resp.nil?
+      return
+    end
+
+    log_folder = 'logs'
+    FileUtils.mkdir_p(log_folder)
+
+    timestamp = Time.now.strftime('%Y%m%d_%H%M%S.%L') # Format: YYYYMMDD_HHMMSS.mmm
+    class_name = self.class.name
+    log_file = File.join(log_folder, "#{timestamp}_#{class_name}.log")
+
+    File.open(log_file, 'w') do |file|
+      file.write(resp)
+    end
   end
 
 end

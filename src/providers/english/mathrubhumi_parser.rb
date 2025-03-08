@@ -8,9 +8,9 @@ class MathrubhumiParser < EnglishWordProvider
   def fetch_definitions(doc, word)
     link = 'https://english.mathrubhumi.com' + doc.at_xpath('//a[h1[contains(text(), "Word of the day")]]')['href']
 
-    word_doc = get_details_doc(link)
+    @word_doc = get_details_doc(link)
 
-    divs = word_doc.css('div.mpp-story-content-details-main.my-3')
+    divs = @word_doc.css('div.mpp-story-content-details-main.my-3')
 
     meaning = nil
     example = nil

@@ -11,10 +11,10 @@ class VocabularyParser < EnglishWordProvider
     link = doc.at('a.word-of-the-day')['href']
     link_parsed = normalize_url(link)
     word_url = resolve_url(link_parsed)
-    word_doc = get_details_doc(word_url, true)
+    @word_doc = get_details_doc(word_url, true)
 
-    ipa = word_doc.at('div.ipa-with-audio span.span-replace-h3')&.inner_html&.force_encoding("utf-8")&.strip&.gsub('/', '')
-    part_of_speech = word_doc.at('div.pos-icon')&.text&.strip
+    ipa = @word_doc.at('div.ipa-with-audio span.span-replace-h3')&.inner_html&.force_encoding("utf-8")&.strip&.gsub('/', '')
+    part_of_speech = @word_doc.at('div.pos-icon')&.text&.strip
 
     {
       definition: definition,

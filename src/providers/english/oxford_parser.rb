@@ -10,13 +10,13 @@ class OxfordParser < EnglishWordProvider
 
     link = url + doc.at_css(".wotd h3 a")['href'] + '?tl=true'
 
-    word_doc = get_details_doc(link, true)
+    @word_doc = get_details_doc(link, true)
 
-    pronunciation = word_doc.at_css(".pronunciation-ipa")&.text&.strip&.gsub(/^\/|\/$/, '')
+    pronunciation = @word_doc.at_css(".pronunciation-ipa")&.text&.strip&.gsub(/^\/|\/$/, '')
 
-    last_quote = word_doc.at_css('ol.quotation-container')&.css('li.quotation')&.last&.css('.quotation-text')&.text&.strip
+    last_quote = @word_doc.at_css('ol.quotation-container')&.css('li.quotation')&.last&.css('.quotation-text')&.text&.strip
 
-    frequency_element = word_doc.at_css('.frequency-indicator')
+    frequency_element = @word_doc.at_css('.frequency-indicator')
     frequency_visual = ""
 
     if frequency_element && frequency_element['aria-description']

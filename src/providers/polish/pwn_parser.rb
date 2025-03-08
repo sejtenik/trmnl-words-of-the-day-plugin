@@ -10,9 +10,9 @@ class PwnParser < PolishWordProvider
     word_link = day_word_box.at_css("a")
 
     word_url = word_link['href']
-    word_doc = get_details_doc(word_url)
+    @word_doc = get_details_doc(word_url)
 
-    definition_text = word_doc.text.match(/«(.*?)»/)
+    definition_text = @word_doc.text.match(/«(.*?)»/)
     definition = definition_text[1]&.strip
 
     {

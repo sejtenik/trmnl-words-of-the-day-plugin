@@ -9,9 +9,9 @@ class NYTimesParser < EnglishWordProvider
 
     link = 'https://www.nytimes.com' + doc.at_css('a:has(h3:contains("Word of the Day"))')['href']
 
-    word_doc = get_details_doc(link, true)
+    @word_doc = get_details_doc(link, true)
 
-    h2 = word_doc.at_css("h2:contains('#{word}')")
+    h2 = @word_doc.at_css("h2:contains('#{word}')")
     h2_text = h2.text.strip
 
     pronunciation = h2_text[/\\ (.*?) \\/, 1]&.strip

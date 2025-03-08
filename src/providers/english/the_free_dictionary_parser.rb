@@ -10,9 +10,9 @@ class TheFreeDictionaryParser < EnglishWordProvider
     link = "#{url}#{word}"
     usage = doc.css("#Content_CA_WOD_0_DataZone td").last.text.strip.split("Discuss").first.strip
 
-    word_doc = get_details_doc(link)
+    @word_doc = get_details_doc(link)
 
-    pronunciation_html = word_doc.at_css("span.pron")&.inner_html&.gsub(/[()]/, '')
+    pronunciation_html = @word_doc.at_css("span.pron")&.inner_html&.gsub(/[()]/, '')
     pronunciation_html = CGI.unescapeHTML(pronunciation_html)
 
     {
