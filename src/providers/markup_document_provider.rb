@@ -27,6 +27,7 @@ class MarkupDocumentProvider < WordOfTheDayProvider
   private
   def get_details_doc(link, add_user_agent = false)
     word_url = normalize_url(link)
+
     options = {}
     if add_user_agent
       options = {
@@ -42,7 +43,12 @@ class MarkupDocumentProvider < WordOfTheDayProvider
   end
 
   def normalize_url(link)
-    Addressable::URI.parse(link).normalize.to_s
+    Addressable::URI.parse(link)&.normalize.to_s
+  end
+
+  def resolve_url(link)
+    uri = URI.parse(url)
+    "#{uri.scheme}://#{uri.host}#{link}"
   end
 
 end
