@@ -1,6 +1,3 @@
-require 'addressable/uri'
-require 'open-uri'
-
 class PwnParser < PolishWordProvider
   def fetch_word(doc)
     day_word_box = doc.at_css(".sjp-slowo-dnia")

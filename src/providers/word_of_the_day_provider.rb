@@ -1,4 +1,3 @@
-require 'open-uri'
 require 'nokogiri'
 require 'moneta'
 require_relative '../tools'
