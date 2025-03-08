@@ -14,39 +14,27 @@ class MarkupDocumentProvider < WordOfTheDayProvider
   end
 
   def get_doc
-    puts "Calling #{url}"
-    response = HTTParty.get(url)
-    content_type = response.headers['content-type']
-
-    puts response.headers
-
-    if content_type.include?('xml')
-      Nokogiri::XML(response.body)
-    elsif content_type.include?('html')
-      Nokogiri::HTML(response.body)
-    else
-      raise "Unsupported content type: #{content_type}"
-    end
-  rescue => e
-    raise RuntimeError.new("Error opening URL: #{url}"), cause: e
+    get_details_doc(url)
   end
 
   private
-  #TODO remove duplicated code with get_doc method
   def get_details_doc(link, add_user_agent = false)
     word_url = normalize_url(link)
     puts "Calling #{word_url}"
 
-    headers = {}
-    if add_user_agent
-      headers = {
-        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
-    end
-    response = HTTParty.get(word_url, headers: headers)
-    puts response.headers
+    headers = {
+      'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+    response = HTTParty.get(word_url, add_user_agent ? {headers: headers} : {})
+    puts "Request headers: #{response.instance_variable_get('@request')
+                                     .instance_variable_get('@raw_request')
+                                     .instance_variable_get('@header')
+                                     .to_s}"
+    puts "Response headers: #{response.headers.to_s}"
     content_type = response.headers['content-type']
-    if content_type.include?('html')
+    if content_type&.include?('xml')
+      Nokogiri::XML(response.body)
+    elsif content_type&.include?('html')
       Nokogiri::HTML(response.body)
     else
       raise "Unsupported content type: #{content_type} for #{word_url}"
