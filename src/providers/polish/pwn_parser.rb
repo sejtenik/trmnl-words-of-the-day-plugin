@@ -1,12 +1,12 @@
 class PwnParser < PolishWordProvider
-  def fetch_word(doc)
-    day_word_box = doc.at_css(".sjp-slowo-dnia")
+  def fetch_word
+    day_word_box = @doc.at_css(".sjp-slowo-dnia")
     word_link = day_word_box.at_css("a")
     word_link.text.strip
   end
 
-  def fetch_definitions(doc, word)
-    day_word_box = doc.at_css(".sjp-slowo-dnia")
+  def fetch_definitions
+    day_word_box = @doc.at_css(".sjp-slowo-dnia")
     word_link = day_word_box.at_css("a")
 
     word_url = word_link['href']

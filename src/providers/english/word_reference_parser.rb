@@ -1,10 +1,10 @@
 class WordReferenceParser < EnglishWordProvider
-  def fetch_word(doc)
-    doc.at_css('.post-img a')['alt'].split(':').last.strip
+  def fetch_word
+    @doc.at_css('.post-img a')['alt'].split(':').last.strip
   end
 
-  def fetch_definitions(doc, word)
-    link = doc.at_css('.post-img a')['href']
+  def fetch_definitions
+    link = @doc.at_css('.post-img a')['href']
 
     @word_doc = get_details_doc(link)
 

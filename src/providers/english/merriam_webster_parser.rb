@@ -1,18 +1,18 @@
 class MerriamWebsterParser < EnglishWordProvider
-  def fetch_word(doc)
-    word_element = doc.at_css('.word-header-txt')
+  def fetch_word
+    word_element = @doc.at_css('.word-header-txt')
     word_element&.text&.strip
   end
 
 
-  def fetch_definitions(doc, word)
-    part_of_speech_element = doc.at_css('.main-attr')
+  def fetch_definitions
+    part_of_speech_element = @doc.at_css('.main-attr')
     part_of_speech = part_of_speech_element&.text&.strip
 
-    pronunciation_element = doc.at_css('.word-syllables')
+    pronunciation_element = @doc.at_css('.word-syllables')
     pronunciation = pronunciation_element&.text&.strip
 
-    definition_container = doc.at_css(".wod-definition-container")
+    definition_container = @doc.at_css(".wod-definition-container")
 
     definition = []
     definition_container.css("p").each do |p|
@@ -25,7 +25,7 @@ class MerriamWebsterParser < EnglishWordProvider
     example = definition_container.css("p").find { |p| p.text.strip.start_with?("//") }
                 &.inner_html&.gsub("//", "")&.strip
 
-    link = doc.at('a:contains("See the entry >")')['href']
+    link = @doc.at('a:contains("See the entry >")')['href']
 
     {
       part_of_speech: part_of_speech,

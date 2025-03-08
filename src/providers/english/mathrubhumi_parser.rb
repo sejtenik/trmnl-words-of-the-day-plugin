@@ -1,12 +1,12 @@
 class MathrubhumiParser < EnglishWordProvider
 
-  def fetch_word(doc)
-    link = doc.at_xpath('//a[h1[contains(text(), "Word of the day")]]')
+  def fetch_word
+    link = @doc.at_xpath('//a[h1[contains(text(), "Word of the day")]]')
     link.at_xpath('h1').text[/'.*?'/]&.delete("'")&.strip&.downcase
   end
 
-  def fetch_definitions(doc, word)
-    link = 'https://english.mathrubhumi.com' + doc.at_xpath('//a[h1[contains(text(), "Word of the day")]]')['href']
+  def fetch_definitions
+    link = 'https://english.mathrubhumi.com' + @doc.at_xpath('//a[h1[contains(text(), "Word of the day")]]')['href']
 
     @word_doc = get_details_doc(link)
 

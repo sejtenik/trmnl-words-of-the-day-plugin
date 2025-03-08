@@ -1,14 +1,14 @@
 class TheFreeDictionaryParser < EnglishWordProvider
 
-  def fetch_word(doc)
-    doc.at_css("#Content_CA_WOD_0_DataZone h3 a").text.strip
+  def fetch_word
+    @doc.at_css("#Content_CA_WOD_0_DataZone h3 a").text.strip
   end
 
-  def fetch_definitions(doc, word)
-    definition = doc.at_css("#Content_CA_WOD_0_DataZone td span").text.strip
-    part_of_speech = doc.at_css("#Content_CA_WOD_0_DataZone td:nth-of-type(2)")&.text&.strip[/\((.*?)\)/, 1]
-    link = "#{url}#{word}"
-    usage = doc.css("#Content_CA_WOD_0_DataZone td").last.text.strip.split("Discuss").first.strip
+  def fetch_definitions
+    definition = @doc.at_css("#Content_CA_WOD_0_DataZone td span").text.strip
+    part_of_speech = @doc.at_css("#Content_CA_WOD_0_DataZone td:nth-of-type(2)")&.text&.strip[/\((.*?)\)/, 1]
+    link = "#{url}#{@word}"
+    usage = @doc.css("#Content_CA_WOD_0_DataZone td").last.text.strip.split("Discuss").first.strip
 
     @word_doc = get_details_doc(link)
 

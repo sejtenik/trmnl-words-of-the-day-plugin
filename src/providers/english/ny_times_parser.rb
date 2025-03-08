@@ -1,17 +1,17 @@
 class NYTimesParser < EnglishWordProvider
 
-  def fetch_word(doc)
-    word_link = doc.at_css('a:has(h3:contains("Word of the Day"))').text.strip
+  def fetch_word
+    word_link = @doc.at_css('a:has(h3:contains("Word of the Day"))').text.strip
     word_link.split(':').last.strip
   end
 
-  def fetch_definitions(doc, word)
+  def fetch_definitions
 
-    link = 'https://www.nytimes.com' + doc.at_css('a:has(h3:contains("Word of the Day"))')['href']
+    link = 'https://www.nytimes.com' + @doc.at_css('a:has(h3:contains("Word of the Day"))')['href']
 
     @word_doc = get_details_doc(link, true)
 
-    h2 = @word_doc.at_css("h2:contains('#{word}')")
+    h2 = @word_doc.at_css("h2:contains('#{@word}')")
     h2_text = h2.text.strip
 
     pronunciation = h2_text[/\\ (.*?) \\/, 1]&.strip

@@ -1,14 +1,14 @@
 class OxfordParser < EnglishWordProvider
-  def fetch_word(doc)
-    word_element = doc.at_css(".wotd h3 a")
+  def fetch_word
+    word_element = @doc.at_css(".wotd h3 a")
     word_element&.text&.strip
   end
 
-  def fetch_definitions(doc, word)
-    part_of_speech = doc.at_css(".wotdPos")&.text&.strip
-    definition = doc.at_css(".wotdDef")&.text&.strip
+  def fetch_definitions
+    part_of_speech = @doc.at_css(".wotdPos")&.text&.strip
+    definition = @doc.at_css(".wotdDef")&.text&.strip
 
-    link = url + doc.at_css(".wotd h3 a")['href'] + '?tl=true'
+    link = url + @doc.at_css(".wotd h3 a")['href'] + '?tl=true'
 
     @word_doc = get_details_doc(link, true)
 

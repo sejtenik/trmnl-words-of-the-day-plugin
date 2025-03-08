@@ -1,13 +1,15 @@
 class WordleParser < EnglishWordProvider
 
-  def fetch_word(doc)
-    table = doc.at_css('table')
+  def fetch_word
+    table = @doc.at_css('table')
     rows = table.css('tbody tr')
     rows[1].css('td')[2]&.text&.strip&.downcase
   end
 
-  def fetch_definitions(doc, word)
-    GptWordProvider.new.fetch_definitions(doc, word)
+  def fetch_definitions
+    gpt_word_provider = GptWordProvider.new
+    gpt_word_provider.word = @word
+    gpt_word_provider.fetch_definitions
   end
 
   def url

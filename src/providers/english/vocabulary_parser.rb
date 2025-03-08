@@ -1,14 +1,14 @@
 #FIXME - on some environments it produces: 403 forbidden
 class VocabularyParser < EnglishWordProvider
 
-  def fetch_word(doc)
-    doc.at('a.word-of-the-day')&.text&.strip
+  def fetch_word
+    @doc.at('a.word-of-the-day')&.text&.strip
   end
 
-  def fetch_definitions(doc, word)
-    definition = doc.at('p.txt-wod-usage')&.inner_html&.force_encoding("utf-8")&.strip
+  def fetch_definitions
+    definition = @doc.at('p.txt-wod-usage')&.inner_html&.force_encoding("utf-8")&.strip
 
-    link = doc.at('a.word-of-the-day')['href']
+    link = @doc.at('a.word-of-the-day')['href']
     link_parsed = normalize_url(link)
     word_url = resolve_url(link_parsed)
     @word_doc = get_details_doc(word_url, true)

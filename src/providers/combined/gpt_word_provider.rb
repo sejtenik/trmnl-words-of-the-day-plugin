@@ -6,23 +6,25 @@ require_relative '../word_of_the_day_provider'
 # For this provider, I decided to rely on conventional online dictionaries for selecting the Word of the Day.
 # The GPT model, however, is tasked with generating the definition and other attributes.
 class GptWordProvider < WordOfTheDayProvider
+  attr_writer :word
 
   def initialize
     init_random_english_word_provider
   end
 
-  def fetch_word(_)
+  def fetch_word
     doc = @provider.get_doc
-    @provider.fetch_word(doc)
+    @provider.doc = doc
+    @provider.fetch_word
   end
 
-  def fetch_definitions(doc, word)
+  def fetch_definitions
     gpt_response = gpt_client.chat(
       parameters: {
         model: "gpt-4o",
         messages: [
           { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: build_definitions_prompt(word) }
+          { role: "user", content: build_definitions_prompt(@word) }
         ],
         temperature: 0.1,
         max_tokens: 300,
@@ -36,7 +38,7 @@ class GptWordProvider < WordOfTheDayProvider
 
     unless parsed[:definition]
       puts "No definition from model: #{parsed}"
-      return fetch_original_definition(word)
+      return fetch_original_definition(@word)
     end
 
     parsed[:url] = @provider.url
@@ -44,7 +46,7 @@ class GptWordProvider < WordOfTheDayProvider
     parsed
   rescue => e
     puts e
-    fetch_original_definition(word)
+    fetch_original_definition(@word)
   end
 
   def src_desc
@@ -60,7 +62,7 @@ class GptWordProvider < WordOfTheDayProvider
   def fetch_original_definition(word)
     #fallback to original definition
     orig_doc = @provider.get_doc
-    definition = @provider.fetch_definitions(orig_doc, word)
+    definition = @provider.fetch_definitions(orig_doc, @word)
     definition.merge(source: '*' + @provider.src_desc) #To indicate an exception for further analysis
   end
 

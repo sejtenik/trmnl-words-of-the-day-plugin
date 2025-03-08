@@ -2,15 +2,15 @@ require_relative '../english/english_word_provider'
 
 class DikiParser < EnglishWordProvider
 
-  def fetch_word(doc)
-    word_box = doc.at_css(".wordofthedaybox")
+  def fetch_word
+    word_box = @doc.at_css(".wordofthedaybox")
     word_box.at_css(".hws .hw a").text.strip
   end
 
-  def fetch_definitions(doc, word)
-    word_box = doc.at_css(".wordofthedaybox")
+  def fetch_definitions
+    word_box = @doc.at_css(".wordofthedaybox")
     part_of_speech = word_box.at_css(".partOfSpeech")&.text&.strip
-    meanings = doc.css('ol.foreignToNativeMeanings li').map do |li|
+    meanings = @doc.css('ol.foreignToNativeMeanings li').map do |li|
       li.xpath(".//span[@class='hw'] | .//span[@class='hwcomma']").map(&:text).join('; ').strip
     end.join(", ")
 

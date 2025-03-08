@@ -1,14 +1,14 @@
 class BritannicaParser < EnglishWordProvider
-  def fetch_word(doc)
-    doc.at_css(".hw_d .hw_txt, .hw_m .hw_txt")&.text&.strip
+  def fetch_word
+    @doc.at_css(".hw_d .hw_txt, .hw_m .hw_txt")&.text&.strip
   end
 
-  def fetch_definitions(doc, word)
-    pronunciation = doc.at_css(".hpron_word")&.text&.strip
+  def fetch_definitions
+    pronunciation = @doc.at_css(".hpron_word")&.text&.strip
     pronunciation.gsub!(/^\//, '').gsub!(/\/$/, '') if pronunciation
-    part_of_speech = doc.at_css(".fl")&.text&.strip
-    definition = doc.at_css(".midb:first-of-type .midbt p")&.text&.strip.sub(/^\d+ /, '').sub(/^:\s*/, '')
-    example = doc.at_css(".midb:first-of-type .vib .vis .vi p")&.text&.strip
+    part_of_speech = @doc.at_css(".fl")&.text&.strip
+    definition = @doc.at_css(".midb:first-of-type .midbt p")&.text&.strip.sub(/^\d+ /, '').sub(/^:\s*/, '')
+    example = @doc.at_css(".midb:first-of-type .vib .vis .vi p")&.text&.strip
 
     {
       part_of_speech: part_of_speech,

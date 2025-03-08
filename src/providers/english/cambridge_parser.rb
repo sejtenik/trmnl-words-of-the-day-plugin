@@ -1,19 +1,19 @@
 require_relative '../../tools'
 
 class CambridgeParser < EnglishWordProvider
-  def fetch_word(doc)
-    doc.at_css(".wotd-hw a")&.text&.strip
+  def fetch_word
+    @doc.at_css(".wotd-hw a")&.text&.strip
   end
 
-  def fetch_definitions(doc, word)
-    pronunciation = doc.at_css(".ipa.dipa")&.text&.strip
+  def fetch_definitions
+    pronunciation = @doc.at_css(".ipa.dipa")&.text&.strip
     pronunciation.gsub!(/^\//, '').gsub!(/\/$/, '') if pronunciation
 
-    definition = doc.css("p").find { |p|
-      p.next_element&.name == "a" && p.next_element["href"]&.include?(Tools.remove_accents(word.gsub(" ", "-")))
+    definition = @doc.css("p").find { |p|
+      p.next_element&.name == "a" && p.next_element["href"]&.include?(Tools.remove_accents(@word.gsub(" ", "-")))
     }&.text&.strip
 
-    link = url + doc.at_css(".wotd-hw a")['href']
+    link = url + @doc.at_css(".wotd-hw a")['href']
 
     @word_doc = get_details_doc(link)
 

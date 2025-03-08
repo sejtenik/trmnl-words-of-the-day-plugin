@@ -1,12 +1,12 @@
 class LongmanParser < EnglishWordProvider
-  def fetch_word(doc)
-    word_element = doc.at_css("#wotd .title_entry a")
+  def fetch_word
+    word_element = @doc.at_css("#wotd .title_entry a")
     word_element&.text&.strip
   end
 
-  def fetch_definitions(doc, word)
-    definition = doc.at_css("#wotd .ldoceEntry .newline a")&.text&.strip
-    link = doc.at_css("#wotd .title_entry a")['href']
+  def fetch_definitions
+    definition = @doc.at_css("#wotd .ldoceEntry .newline a")&.text&.strip
+    link = @doc.at_css("#wotd .title_entry a")['href']
 
     @word_doc = get_details_doc(link)
 

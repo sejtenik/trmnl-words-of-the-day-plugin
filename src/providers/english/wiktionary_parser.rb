@@ -1,13 +1,13 @@
 class WiktionaryParser < EnglishWordProvider
-  def fetch_word(doc)
-    word_element = doc.at_css("#WOTD-rss-title")
+  def fetch_word
+    word_element = @doc.at_css("#WOTD-rss-title")
     word_element&.text&.strip
   end
 
-  def fetch_definitions(doc, word)
-    word_element = doc.at_css("#WOTD-rss-title")
+  def fetch_definitions
+    word_element = @doc.at_css("#WOTD-rss-title")
     part_of_speech = word_element.parent.parent.next_element&.text&.strip
-    definition = doc.at_css("#WOTD-rss-description ol li")&.text&.strip&.gsub(/^\([^\)]+\)\s*/, '')&.strip
+    definition = @doc.at_css("#WOTD-rss-description ol li")&.text&.strip&.gsub(/^\([^\)]+\)\s*/, '')&.strip
 
     link = word_element.parent['href']
     link = resolve_url(link)
