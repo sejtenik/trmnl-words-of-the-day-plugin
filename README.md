@@ -19,6 +19,13 @@ To activate this feature, set the OPENAI_API_KEY in the .env file. When enabled,
 GPT will provide meanings, examples, pronunciation, and more as an alternative option 
 alongside conventional dictionaries.
 
+Moreover, the plugin generates a QR code for each word, allowing users to scan it 
+and access the full definition directly. Whenever possible, links are shortened 
+using the TinyURL service to enhance readability and usability.
+
+To minimize the load on source websites, retrieved words are cached in files, 
+ensuring efficient access without excessive requests to external sources.
+
 ## Requirements
 This code interacts with various web sites and the TRMNL webhook API. You will need to host and execute 
 the code yourself to periodically push updated words to TRMNL.
@@ -32,7 +39,7 @@ the code yourself to periodically push updated words to TRMNL.
 TRMNL_API_KEY=<your TRMNL api key>
 TRMNL_PLUGIN_ID=<your plugin UUID>
 OPENAI_API_KEY=<optional, your Open AI api key>
-TINYURL_API_KEY=<tiny URL api key>
+TINYURL_API_KEY=<optional, tiny URL api key>
 ```
 
 5. Run ``bundle``

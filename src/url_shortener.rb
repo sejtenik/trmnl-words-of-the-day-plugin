@@ -1,7 +1,7 @@
 class UrlShortener
   def self.shorten_url_with_tinyurl(long_url)
-    if long_url.length < 60
-      return long_url
+    if long_url.length < 60 || ENV['TINYURL_API_KEY'].nil?
+        return long_url
     end
 
     uri = URI("https://api.tinyurl.com/create")
