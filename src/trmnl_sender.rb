@@ -1,6 +1,8 @@
 require 'json'
 
 class TrmnlSender
+  TRMNL_PAYLOAD_LIMIT = 2048
+
   def self.send_to_trmnl(data_payload)
     trmnl_webhook_url = "https://usetrmnl.com/api/custom_plugins/#{ENV['TRMNL_PLUGIN_ID']}"
 
@@ -15,7 +17,17 @@ class TrmnlSender
     }
 
     request = Net::HTTP::Post.new(uri.path, headers)
-    request.body = {merge_variables: data_payload}.to_json
+    body = { merge_variables: data_payload }.to_json
+
+    puts body
+
+    if body.bytesize > TRMNL_PAYLOAD_LIMIT
+      raise "Request body is too large (#{body.bytesize} bytes, limit: #{TRMNL_PAYLOAD_LIMIT} bytes)"
+    else
+      puts "Request body size: (#{body.bytesize} bytes)"
+    end
+
+    request.body = body
 
     response = http.request(request)
 
