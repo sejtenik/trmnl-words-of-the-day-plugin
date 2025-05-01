@@ -22,7 +22,6 @@ class WordReferenceParser < EnglishWordProvider
     }
   end
 
-  #TODO: replace with an actual Wordnik REST API
   def url
     "https://daily.wordreference.com/intermediate-word-of-the-day/"
   end

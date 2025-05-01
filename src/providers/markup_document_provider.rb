@@ -17,15 +17,18 @@ class MarkupDocumentProvider < WordOfTheDayProvider
     get_details_doc(url)
   end
 
-  private
-  def get_details_doc(link, add_user_agent = false)
+  protected
+  def get_details_doc(link, add_user_agent = false, headers = {})
     word_url = normalize_url(link)
     puts "Calling #{word_url}"
 
-    headers = {
-      'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    }
-    response = HTTParty.get(word_url, add_user_agent ? {headers: headers} : {})
+    if add_user_agent
+      headers = {
+        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }.merge(headers)
+    end
+
+    response = HTTParty.get(word_url, {headers: headers})
     puts "Request headers: #{response.instance_variable_get('@request')
                                      .instance_variable_get('@raw_request')
                                      .instance_variable_get('@header')
