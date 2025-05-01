@@ -28,9 +28,16 @@ class ProviderShuffleMachine
 
   private
   def init_state
+    skip_parsers = ENV['SKIP_PARSERS']&.split(',') || []
+
     {
       date: Date.today.to_s,
-      providers: WordOfTheDayProvider.providers.map(&:name).shuffle
+      providers: WordOfTheDayProvider.providers
+                                     .map(&:name)
+                                     .reject do |provider|
+                                        skip_parsers.include?(provider)
+                                            end
+                                     .shuffle
     }
   end
 
