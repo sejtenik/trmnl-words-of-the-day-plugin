@@ -1,17 +1,16 @@
 class PwnParser < PolishWordProvider
   def fetch_word
-    day_word_box = @doc.at_css(".sjp-slowo-dnia")
-    word_link = day_word_box.at_css("a")
-    word_link.text.strip
+    label_div = @doc.at_xpath('//div[contains(text(), "Słowo dnia")]')
+    container = label_div.parent
+    container.at_css('.typography-serif-2xl')&.text&.strip
   end
 
   def fetch_definitions
-    day_word_box = @doc.at_css(".sjp-slowo-dnia")
-    word_link = day_word_box.at_css("a")
-
-    word_url = word_link['href']
+    label_div = @doc.at_xpath('//div[contains(text(), "Słowo dnia")]')
+    container = label_div.parent
+    relative_url = container.at_css('a[href*="/slowniki/"]')&.[]('href')
+    word_url = "#{url}#{relative_url}"
     @word_doc = get_details_doc(word_url)
-
     definition_text = @word_doc.text.match(/«(.*?)»/)
     definition = definition_text[1]&.strip
 

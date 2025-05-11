@@ -38,9 +38,10 @@ class WordOfTheDayProvider
     @cache[cache_key] = result
     result
   rescue => e
-    puts "#{src_desc} #{e.full_message}"
-    save_logs(@doc)
-    save_logs(@word_doc)
+    error =  "#{Time.now} #{src_desc}\n#{e.class}: #{e.message}\n#{e.backtrace.join("\n")}"
+    puts error
+    line_separator = "\n========================\n"
+    save_logs([error, @doc.to_s, @word_doc.to_s].join(line_separator))
     raise
   ensure
     @cache.close
