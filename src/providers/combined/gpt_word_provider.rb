@@ -67,9 +67,13 @@ class GptWordProvider < WordOfTheDayProvider
   end
 
   def init_random_english_word_provider
+    skip_parsers = ENV['SKIP_PARSERS']&.split(',') || []  #TODO fix code duplication with ProviderShuffleMachine
     @provider = WordOfTheDayProvider.providers
                                     .select { |klass|
                                       klass < EnglishWordProvider
+                                    }
+                                    .reject { |provider|
+                                      skip_parsers.include?(provider.to_s)
                                     }.sample.new
   end
 

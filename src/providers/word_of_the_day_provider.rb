@@ -37,6 +37,8 @@ class WordOfTheDayProvider
 
     @cache[cache_key] = result
     result
+  rescue StaleDefinitionError
+    raise
   rescue => e
     error =  "#{Time.now} #{src_desc}\n#{e.class}: #{e.message}\n#{e.backtrace.join("\n")}"
     puts error
