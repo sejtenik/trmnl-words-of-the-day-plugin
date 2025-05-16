@@ -1,3 +1,5 @@
+require_relative '../../gpt_tool'
+
 class WordleParser < EnglishWordProvider
 
   def fetch_word
@@ -7,9 +9,7 @@ class WordleParser < EnglishWordProvider
   end
 
   def fetch_definitions
-    gpt_word_provider = GptWordProvider.new
-    gpt_word_provider.word = @word
-    gpt_word_provider.fetch_definitions
+    GptTool.new.full_word_definition(@word)
   end
 
   def url
@@ -18,6 +18,10 @@ class WordleParser < EnglishWordProvider
 
   def src_desc
     "Yesterday's Wordle + gpt-4o"
+  end
+
+  def may_be_enhanced?
+    false
   end
 
 end

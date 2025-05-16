@@ -1,26 +1,66 @@
-#FIXME - on some environments it produces: 403 forbidden
+require 'net/imap'
+require 'mail'
+
+#To use this parser, you need to:
+# - have an email with IMAP support (presumably different from your regular email account)
+# - create an account on https://www.vocabulary.com/ using the same email
+# - subscribe to the "Word of the Day" newsletter https://www.vocabulary.com/word-of-the-day/
+# - set the following environment variables in .env file:
+#   EMAIL_HOST
+#   EMAIL_LOGIN
+#   EMAIL_PASSWORD
 class VocabularyParser < EnglishWordProvider
 
+  KEYWORD = 'Word of the Day'
+  SENDER = 'reply@email.vocabulary.com'
+
+  def get_doc
+    imap = Net::IMAP.new(ENV['EMAIL_HOST'], port: 993, ssl: true)
+    imap.login(ENV['EMAIL_LOGIN'], ENV['EMAIL_PASSWORD'])
+    imap.select('INBOX')
+
+    uids = imap.uid_search(['FROM', SENDER, 'SUBJECT', KEYWORD])
+
+    matching_messages = uids.map do |uid|
+      envelope = imap.uid_fetch(uid, 'ENVELOPE')[0].attr['ENVELOPE']
+      { uid: uid, date: envelope.date, subject: envelope.subject }
+    end.select { |msg| msg[:subject].start_with?(KEYWORD) }
+
+    sorted_messages = matching_messages.sort_by { |msg| Date.parse(msg[:date]) }.reverse
+
+    unless sorted_messages.any?
+      return
+    end
+
+    latest_uid = sorted_messages.first[:uid]
+    msg = imap.uid_fetch(latest_uid, 'RFC822')[0].attr['RFC822']
+    imap.store(latest_uid, "+FLAGS", [:Seen])
+    mail = Mail.read_from_string(msg)
+    html_body = mail.html_part ? mail.html_part.decoded : mail.body.decoded
+    return Nokogiri::HTML(html_body)
+  rescue Net::IMAP::ByeResponseError
+    puts 'ByeResponseError'
+  rescue Net::IMAP::Error => e
+    puts "IMAP ERROR: #{e.message}"
+  ensure
+    imap.disconnect unless imap.disconnected?
+  end
+
   def fetch_word
-    @doc.at('a.word-of-the-day')&.text&.strip
+    word_node = @doc&.at('td[style*="font-size:2em"] a')
+    word_node&.text
   end
 
   def fetch_definitions
-    definition = @doc.at('p.txt-wod-usage')&.inner_html&.force_encoding("utf-8")&.strip
+    word_node = @doc.at('td[style*="font-size:2em"] a')
+    link = word_node&.[]('href')
 
-    link = @doc.at('a.word-of-the-day')['href']
-    link_parsed = normalize_url(link)
-    word_url = resolve_url(link_parsed)
-    @word_doc = get_details_doc(word_url, true)
-
-    ipa = @word_doc.at('div.ipa-with-audio span.span-replace-h3')&.inner_html&.force_encoding("utf-8")&.strip&.gsub('/', '')
-    part_of_speech = @word_doc.at('div.pos-icon')&.text&.strip
+    definition_node = @doc.at('td[style*="font-size:16px"][class*="lh30"]')
+    definition_text = definition_node&.text&.strip
 
     {
-      definition: definition,
-      pronunciation: ipa,
-      part_of_speech: part_of_speech,
-      url: word_url
+      definition: definition_text,
+      url: link
     }
   end
 
@@ -28,4 +68,3 @@ class VocabularyParser < EnglishWordProvider
     "https://www.vocabulary.com/word-of-the-day/"
   end
 end
-

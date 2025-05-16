@@ -1,3 +1,4 @@
+#Depracated due to Captcha, use NYTimesApiParser instead
 class NYTimesParser < EnglishWordProvider
 
   def fetch_word

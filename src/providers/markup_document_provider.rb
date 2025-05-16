@@ -39,6 +39,8 @@ class MarkupDocumentProvider < WordOfTheDayProvider
       Nokogiri::XML(response.body)
     elsif content_type&.include?('html')
       Nokogiri::HTML(response.body)
+    elsif content_type&.include?('application/json')
+      JSON.parse(response.body)
     else
       raise "Unsupported content type: #{content_type} for #{word_url}"
     end

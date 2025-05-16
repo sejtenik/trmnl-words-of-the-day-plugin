@@ -39,6 +39,10 @@ class DikiParser < EnglishWordProvider
     "https://www.diki.pl/dictionary/word-of-the-day"
   end
 
+  def may_be_enhanced?
+    false
+  end
+
 end
 
 

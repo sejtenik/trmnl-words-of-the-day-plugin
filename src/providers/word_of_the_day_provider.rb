@@ -5,6 +5,7 @@ require 'fileutils'
 
 require_relative '../tools'
 require_relative '../url_shortener'
+require_relative '../gpt_tool'
 
 class WordOfTheDayProvider
   attr_writer :doc
@@ -14,18 +15,22 @@ class WordOfTheDayProvider
 
   def fetch
     @cache = Moneta.new(:File, dir: 'cache', serializer: :json)
+    cache_key = "#{src_desc}.json"
 
-    @doc = get_doc
-    @word = fetch_word
+    cache_value = fetch_cache_or_refresh(cache_key) do
+      @doc = get_doc
+      @word = fetch_word
+    end
 
-    cache_key = "#{src_desc}_#{@word}.json"
-
-    if @cache.key?(cache_key)
-      puts 'Using cache'
-      return fetch_with_checks(cache_key)
+    if cache_value
+      return cache_value
     end
 
     definitions = fetch_definitions
+
+    if may_be_enhanced?
+      definitions = GptTool.new.enhance_definition(definitions.merge(word: @word))
+    end
 
     result = definitions.merge(
       word: Tools.nvl(@word, '>>Word not found<<'),
@@ -65,6 +70,10 @@ class WordOfTheDayProvider
     raise NotImplementedError, "Subclasses must implement `get_doc`"
   end
 
+  def may_be_enhanced?
+    true
+  end
+
   def self.providers
     self.leaf_classes(WordOfTheDayProvider)
   end
@@ -85,20 +94,25 @@ class WordOfTheDayProvider
     target_url ? UrlShortener.shorten_url_with_tinyurl(target_url) : nil
   end
 
-  def fetch_with_checks(key)
-    value = @cache[key]
-
-    value = value.transform_keys(&:to_sym)
-
-    if value[:creation_date].nil? || Time.now - Time.parse(value[:creation_date]) > CACHE_TTL
-      raise StaleDefinitionError, "Definition for #{key} is outdated - creation_date: #{value[:creation_date]}"
+  def fetch_cache_or_refresh(cache_key)
+    unless @cache.key?(cache_key)
+      yield
+      return
     end
 
-    if value
-      @cache[key] = value
-    end
+    value = @cache[cache_key].transform_keys(&:to_sym)
+    age = Time.now - Time.parse(value[:creation_date])
 
-    value
+    if age <= CACHE_TTL
+      puts 'Using cache'
+      @cache[cache_key] = value #bump cache file modification time attribute
+      value
+    else
+      new_word = yield
+      if new_word == value[:word]
+        raise StaleDefinitionError, "Cached value for #{cache_key} - #{value[:word]} is stale and no changes detected in fresh data."
+      end
+    end
   end
 
   def save_logs(resp)

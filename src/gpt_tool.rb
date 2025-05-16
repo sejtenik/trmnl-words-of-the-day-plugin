@@ -1,30 +1,26 @@
 require 'openai'
 require 'json'
-require_relative '../word_of_the_day_provider'
-#require_relative '../english_word_provider'
 
-# For this provider, I decided to rely on conventional online dictionaries for selecting the Word of the Day.
-# The GPT model, however, is tasked with generating the definition and other attributes.
-class GptWordProvider < WordOfTheDayProvider
-  attr_writer :word
+class GptTool
 
-  def initialize
-    init_random_english_word_provider
+  def full_word_definition(word)
+    fetch_definitions(false, word, {})
   end
 
-  def fetch_word
-    doc = @provider.get_doc
-    @provider.doc = doc
-    @provider.fetch_word
+  def enhance_definition(definitions)
+    fetch_definitions(true, nil, definitions)
   end
 
-  def fetch_definitions
+  private
+  def fetch_definitions(completion_mode, word, current_definitions)
     gpt_response = gpt_client.chat(
       parameters: {
         model: "gpt-4o",
         messages: [
           { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: build_definitions_prompt(@word) }
+          { role: "user", content: completion_mode ?
+                                     build_completion_prompt(current_definitions):
+                                     build_full_definitions_prompt(word) }
         ],
         temperature: 0.1,
         max_tokens: 300,
@@ -36,45 +32,12 @@ class GptWordProvider < WordOfTheDayProvider
     parsed = JSON.parse(model_result, symbolize_names: true)
     puts JSON.pretty_generate(parsed)
 
-    unless parsed[:definition]
+    unless completion_mode || parsed[:definition]
       puts "No definition from model: #{parsed}"
-      return fetch_original_definition(@word)
+      return
     end
 
-    parsed[:url] = @provider.url
-
-    parsed
-  rescue => e
-    puts e
-    fetch_original_definition(@word)
-  end
-
-  def src_desc
-    "GPT4o@#{@provider.src_desc.sub(/^www\./, '')}"
-  end
-
-  def get_doc
-    ''
-  end
-
-  private
-
-  def fetch_original_definition(word)
-    #fallback to original definition
-    orig_doc = @provider.get_doc
-    definition = @provider.fetch_definitions(orig_doc, @word)
-    definition.merge(source: '*' + @provider.src_desc) #To indicate an exception for further analysis
-  end
-
-  def init_random_english_word_provider
-    skip_parsers = ENV['SKIP_PARSERS']&.split(',') || []  #TODO fix code duplication with ProviderShuffleMachine
-    @provider = WordOfTheDayProvider.providers
-                                    .select { |klass|
-                                      klass < EnglishWordProvider
-                                    }
-                                    .reject { |provider|
-                                      skip_parsers.include?(provider.to_s)
-                                    }.sample.new
+    current_definitions.merge(parsed)
   end
 
   def gpt_client
@@ -83,7 +46,7 @@ class GptWordProvider < WordOfTheDayProvider
     log_errors: true)
   end
 
-  def build_definitions_prompt(word)
+  def build_full_definitions_prompt(word)
     <<~PROMPT
     Provide the following information about the word "#{word}":
     1. An English definition in one or at most two sentences.
@@ -105,4 +68,31 @@ class GptWordProvider < WordOfTheDayProvider
     Return only JSON in your response. Do not include any code blocks or other text.
   PROMPT
   end
+
+  def build_completion_prompt(partial_entry)
+    <<~PROMPT
+    You will be given a JSON object containing partial information about an English word. 
+    Your task is to **fill in and return only the missing fields**. Do not return the values that are already provided. 
+    Return the completed JSON object, using the same format.
+  
+    The object may contain the following keys:
+    - "word": the word (always present),
+    - "definition": a short English definition (one or two sentences),
+    - "pronunciation": the word's pronunciation in IPA (Oxford English Dictionary style, e.g., "kæt"),
+    - "part_of_speech": one of: noun, verb, adjective, adverb, etc.,
+    - "example": an English example sentence using the word,
+    - "meaning": the most common Polish translation that fits the part of speech,
+    - "level": one of: A1, A2, B1, B2, C1, C2 (CEFR difficulty level)
+  
+    If you don't recognize the word, return exactly {} — no explanation, no markdown, just curly braces.
+  
+    Here is the partial input:
+  
+    #{partial_entry}
+  
+    Return only the JSON object with missing fields filled in.
+    Do not include any comments, explanations, or markdown.
+  PROMPT
+  end
+
 end
