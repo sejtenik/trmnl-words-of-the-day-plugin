@@ -1,6 +1,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-  integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
-  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <div class="layout">
     <style>
@@ -47,6 +47,7 @@
             margin-right: 15px;
         }
 
+
         .pronunciation {
             font-size: 1.3rem;
             font-family: "Courier New", monospace;
@@ -78,18 +79,18 @@
             overflow: hidden;
         }
 
-      .qr-code {
+        .qr-code {
             position: fixed;
             top: 0px;
             left: 680px;
             z-index: 9999;
-      }
+        }
     </style>
     <div class="columns">
         <div class="column">
             <div class="markdown gap--large word-of-the-day">
                 <h1 class="word">{{ word }}
-                   {% if level != blank %}
+                    {% if level != blank %}
                         <span class='level'>[{{ level }}]</span>
                     {% endif %}
                 </h1>
@@ -100,12 +101,18 @@
                         <span class="pronunciation">/{{ pronunciation }}/</span>
                     {% endif %}
 
-                    <p class="definition multi-line-ellipsis">{{ definition }}
-                        {% if meaning %}
-                            ({{ meaning }})
+                    <p class="definition multi-line-ellipsis" style="margin-top:5px; margin-bottom:5px">
+
+                        {{ definition }}  {% if meaning %}
+
+                            <br>&raquo;<i>{{ meaning }}</i>&laquo;
+
                         {% endif %}
                     </p>
+
                 </div>
+
+
 
                 {% if example %}
                     <div class="example multi-line-ellipsis">
@@ -116,7 +123,7 @@
         </div>
     </div>
     <div class = 'qr-code' data-qr-mode="text" data-qr-size="100"
-      data-text="{{ url }}"></div>
+         data-text="{{ url }}"></div>
 </div>
 
 
@@ -127,10 +134,10 @@
 </div>
 
 <script>
-  Array.from(document.querySelectorAll('[data-qr-mode]')).forEach(e => {
-    let size = parseInt(e.getAttribute('data-qr-size'));
-    let text = e.getAttribute('data-text');
-    if (text) { new QRCode(e, {text, width: size, height: size}); }
-  });
+    Array.from(document.querySelectorAll('[data-qr-mode]')).forEach(e => {
+        let size = parseInt(e.getAttribute('data-qr-size'));
+        let text = e.getAttribute('data-text');
+        if (text) { new QRCode(e, {text, width: size, height: size}); }
+    });
 </script>
 
