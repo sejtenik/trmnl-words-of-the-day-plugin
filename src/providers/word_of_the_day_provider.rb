@@ -26,15 +26,26 @@ class WordOfTheDayProvider
       return cache_value
     end
 
+    unless @doc
+      raise RuntimeError, "No doc found for #{src_desc}"
+    end
+
+    unless @word
+      raise RuntimeError, "No word found for #{src_desc}"
+    end
+
     definitions = fetch_definitions
 
     if may_be_enhanced?
       definitions = GptTool.new.enhance_definition(definitions.merge(word: @word))
     end
 
+    unless definitions[:definition]
+      raise RuntimeError, "No definition found for #{@word}"
+    end
+
     result = definitions.merge(
-      word: Tools.nvl(@word, '>>Word not found<<'),
-      definition: Tools.nvl(definitions[:definition], '>>Definition not found<<'),
+      word: @word,
       source: Tools.nvl(definitions[:source], src_desc),
       url: prepare_short_url(definitions),
       creation_date: Time.now

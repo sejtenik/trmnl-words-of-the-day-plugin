@@ -33,6 +33,8 @@ class VocabularyParser < EnglishWordProvider
     end
 
     latest_uid = sorted_messages.first[:uid]
+    envelope = imap.uid_fetch(latest_uid, 'ENVELOPE')[0].attr['ENVELOPE']
+    @word_from_title = envelope.subject.split(':')[1].strip
     msg = imap.uid_fetch(latest_uid, 'RFC822')[0].attr['RFC822']
     imap.store(latest_uid, "+FLAGS", [:Seen])
     mail = Mail.read_from_string(msg)
@@ -47,16 +49,14 @@ class VocabularyParser < EnglishWordProvider
   end
 
   def fetch_word
-    word_node = @doc&.at('td[style*="font-size:2em"] a')
-    word_node&.text
+    @word_from_title
   end
 
   def fetch_definitions
-    word_node = @doc.at('td[style*="font-size:2em"] a')
-    link = word_node&.[]('href')
-
-    definition_node = @doc.at('td[style*="font-size:16px"][class*="lh30"]')
-    definition_text = definition_node&.text&.strip
+    preheader_div = @doc.at_css('div.preheader')
+    definition_text = preheader_div.inner_html.sub(/^.*?VocabTrainer\.\s*/i, '')
+    link_tag = @doc.css('a').find { |a| a&.text&.strip&.downcase == @word.downcase }
+    link = link_tag&.[]('href')
 
     {
       definition: definition_text,
