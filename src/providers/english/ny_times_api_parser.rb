@@ -6,7 +6,7 @@ require_relative '../../gpt_tool'
 class NYTimesApiParser < EnglishWordProvider
 
   def get_doc
-    date = Date.today.strftime("%Y%m%d")
+    date = (Date.today - 1).strftime("%Y%m%d")
     keyword = "Word of the day"
     prep_url = url + "?fq=desk:Learning&begin_date=#{date}&q=\"#{keyword}\"&api-key=#{ENV['NYTIMES_API_KEY']}"
     get_details_doc(prep_url)
@@ -15,7 +15,7 @@ class NYTimesApiParser < EnglishWordProvider
   def fetch_word
     articles = @doc["response"]["docs"]
 
-    unless articles&.empty?
+    if articles && !articles.empty?
       articles.first["headline"]["main"].split(':')[1].strip
     end
   end
