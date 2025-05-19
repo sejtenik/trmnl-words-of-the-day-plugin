@@ -1,62 +1,30 @@
 class MathrubhumiParser < EnglishWordProvider
 
   def fetch_word
-    link = link1
+    @link = get_link
 
-    unless link.nil?
-      return link.at_xpath('h1')&.text[/'.*?'/]&.delete("'")&.strip&.downcase
-    end
-
-    link = link2
-
-    link.text.strip.match(/.*:.{2}(.*)/)[1].chop
+    @link.text.strip.match(/.*:.{2}(.*)/)[1].chop
   end
 
   def fetch_definitions
-    link = (link1.nil? ? link2['href'] : 'https://english.mathrubhumi.com' + link1['href'])
+    link = @link['href']
 
     @word_doc = get_details_doc(link)
 
-    divs = @word_doc.css('div.mpp-story-content-details-main.my-3, div.article-body')
+    pron_line = @doc.at('p strong:contains("Pronunciation")')&.parent&.text
+    pronunciation = pron_line&.split(':')&.last&.strip
 
-    meaning = nil
-    example = nil
-    pronunciation = nil
-    part_of_speech = nil
+    meaning_header = @doc.at('p strong:contains("Meaning")')
+    meaning = meaning_header&.parent&.children&.map(&:text)&.drop(1)&.join&.strip
 
-    divs.each_with_index do |div, index|
-      case div.at_css('p strong')&.text
-      when 'Meaning'
-        meaning = divs[index + 1]&.at_css('p')&.text&.strip
-      when 'Pronunciation'
-        pronunciation = divs[index + 1]&.at_css('p')&.text&.strip
-        if pronunciation&.include?('/')
-          pronunciation = pronunciation[/\/(.*?)\//, 1]
-        end
-      when 'Examples from books and articles'
-        example = divs[index + 1]&.at_css('li')&.text&.strip
-      end
-    end
-
-    if meaning.nil?
-      pronunciation = @word_doc.at_xpath("//p[strong[contains(text(), 'Pronunciation:')]]")&.text&.sub('Pronunciation:', '')&.strip
-
-      meaning_node = @word_doc.at_xpath("//p[strong[contains(text(), 'Meaning:')]]/following-sibling::p[1]")
-      meaning = meaning_node&.text&.strip
-
-      part_of_speech = meaning[/\b(noun|verb|adjective|adverb)\b/i]&.downcase
-
-      example_node = @word_doc.at_xpath("//p[strong[contains(text(), 'Examples from Literature:')]]/following-sibling::p[1]")
-      example = example_node&.text&.strip
-
-    end
+    example_items = @doc.css('p strong:contains("Examples") ~ ul').first&.css('li')
+    example = example_items&.map { |li| li.text.strip }
 
     {
       definition: meaning,
       url: link,
       pronunciation: pronunciation,
       example: example,
-      part_of_speech: part_of_speech
     }
   end
 
@@ -66,12 +34,9 @@ class MathrubhumiParser < EnglishWordProvider
 
   private
 
-  def link2
+  def get_link
     @doc.at_xpath('//a[contains(text(), "Word of the Day")]')
   end
 
-  def link1
-    @doc.at_xpath('//a[h1[contains(text(), "Word of the day")]]')
-  end
 end
 
