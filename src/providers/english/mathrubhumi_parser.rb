@@ -35,7 +35,7 @@ class MathrubhumiParser < EnglishWordProvider
   private
 
   def get_link
-    @doc.at_xpath('//a[contains(text(), "Word of the Day")]')
+    @doc.at_xpath('//a[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "word of the day")]')
   end
 
 end
