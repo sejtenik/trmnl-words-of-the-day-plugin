@@ -47,6 +47,12 @@
             margin-right: 15px;
         }
 
+        .meaning {
+            font-size: 1.1rem;
+            font-family: "Verdana", sans-serif;
+            margin-bottom: 0px;
+            margin-right: 0px;
+        }
 
         .pronunciation {
             font-size: 1.3rem;
@@ -58,8 +64,8 @@
             font-size: 1.4rem;
             font-family: "Georgia", serif;
             line-height: 1.6;
-            margin-bottom: 20px;
-            margin-top: 25px;
+            margin-bottom: 0px;
+            margin-top: 0px;
         }
 
         .example {
@@ -101,24 +107,28 @@
                         <span class="pronunciation">/{{ pronunciation }}/</span>
                     {% endif %}
 
-                    <p class="definition multi-line-ellipsis" style="margin-top:5px; margin-bottom:5px">
+                    <p class="definition multi-line-ellipsis">
 
-                        {{ definition }}  {% if meaning %}
-
-                            <br>&raquo;<i>{{ meaning }}</i>&laquo;
-
-                        {% endif %}
+                        {{ definition }}
                     </p>
+
+                    {% if meaning %}
+                        <span class="meaning" style="margin-top:10px;">
+                          &raquo;<b>{{ meaning }}</b>&laquo;
+                        </span>
+                    {% endif %}
+
+                    {% if example %}
+                        <div class="example multi-line-ellipsis">
+                            <p>{{ example }}</p>
+                        </div>
+                    {% endif %}
 
                 </div>
 
 
 
-                {% if example %}
-                    <div class="example multi-line-ellipsis">
-                        <p>{{ example }}</p>
-                    </div>
-                {% endif %}
+
             </div>
         </div>
     </div>

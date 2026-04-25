@@ -11,14 +11,15 @@ class MathrubhumiParser < EnglishWordProvider
 
     @word_doc = get_details_doc(link)
 
-    pron_line = @doc.at('p strong:contains("Pronunciation")')&.parent&.text
-    pronunciation = pron_line&.split(':')&.last&.strip
+    pron_p = @word_doc.xpath('//p[contains(., "Pronunciation:")]').first&.text
+    pronunciation = pron_p&.split('Pronunciation:')&.last&.strip
 
-    meaning_header = @doc.at('p strong:contains("Meaning")')
+    meaning_header = @word_doc.at('p strong:contains("Meaning:")')
     meaning = meaning_header&.parent&.children&.map(&:text)&.drop(1)&.join&.strip
 
-    example_items = @doc.css('p strong:contains("Examples") ~ ul').first&.css('li')
-    example = example_items&.map { |li| li.text.strip }
+    example_p = @word_doc.at('p strong:contains("Example")')&.parent
+    example_items = example_p&.xpath('following-sibling::ul[1]')&.css('li')
+    example = example_items&.map { |li| li.text.strip }&.first
 
     {
       definition: meaning,
@@ -39,4 +40,3 @@ class MathrubhumiParser < EnglishWordProvider
   end
 
 end
-

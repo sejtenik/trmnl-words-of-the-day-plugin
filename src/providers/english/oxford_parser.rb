@@ -1,4 +1,8 @@
 class OxfordParser < EnglishWordProvider
+  def get_doc
+    get_details_doc(url, true)
+  end
+
   def fetch_word
     word_element = @doc.at_css(".wotd h3 a")
     word_element&.text&.strip
@@ -43,4 +47,3 @@ class OxfordParser < EnglishWordProvider
   end
 
 end
-

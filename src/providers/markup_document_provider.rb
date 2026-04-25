@@ -18,7 +18,7 @@ class MarkupDocumentProvider < WordOfTheDayProvider
   end
 
   protected
-  def get_details_doc(link, add_user_agent = false, headers = {})
+  def get_details_doc(link, add_user_agent = false, headers = {}, httparty_options: {})
     word_url = normalize_url(link)
     puts "Calling #{word_url}"
 
@@ -28,7 +28,7 @@ class MarkupDocumentProvider < WordOfTheDayProvider
       }.merge(headers)
     end
 
-    response = HTTParty.get(word_url, {headers: headers})
+    response = HTTParty.get(word_url, {headers: headers}.merge(httparty_options))
     puts "Request headers: #{response.instance_variable_get('@request')
                                      .instance_variable_get('@raw_request')
                                      .instance_variable_get('@header')

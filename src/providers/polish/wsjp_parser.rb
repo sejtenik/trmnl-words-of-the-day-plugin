@@ -1,4 +1,8 @@
 class WsjpParser < PolishWordProvider
+  def get_doc
+    get_details_doc(url, true, {}, httparty_options: {verify: false})
+  end
+
   def fetch_word
     day_word_box = @doc.at_css(".day-word-box")
     day_word_box.at_css("h4").text.strip
@@ -22,5 +26,3 @@ class WsjpParser < PolishWordProvider
   end
 
 end
-
-

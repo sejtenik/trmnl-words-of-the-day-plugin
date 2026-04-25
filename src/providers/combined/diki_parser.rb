@@ -2,6 +2,13 @@ require_relative '../english/english_word_provider'
 
 class DikiParser < EnglishWordProvider
 
+  def get_doc
+    get_details_doc(url, true, {
+      'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language' => 'pl-PL,pl;q=0.9,en;q=0.5'
+    })
+  end
+
   def fetch_word
     word_box = @doc.at_css(".wordofthedaybox")
     word_box.at_css(".hws .hw a").text.strip
